@@ -1,4 +1,10 @@
 {
     "quick": "README.md",
-    "configuration": "CONFIG-FILE.md"
+    "configuration": "CONFIG-FILE.md",
+    "Chapter 1": "docthing.py",
+    "Chapter 2": {
+        "Utils": "docthing/util.py",
+        "Index": "docthing/index.py",
+        "Constants": "docthing/constants.py"
+    }
 }

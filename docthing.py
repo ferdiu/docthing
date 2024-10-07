@@ -4,10 +4,11 @@ END FILE DOCUMENTATION '''
 
 import os
 import argparse
+import json
 
-from .docthing.util import load_config, merge_configs, create_output_directory
-from .docthing.contants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
-from .docthing.index import process_index
+from docthing.util import load_config, merge_configs, create_output_directory
+from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
+from docthing.index import process_index
 
 
 # Main function to handle command-line arguments and execute the documentation generation
@@ -20,10 +21,10 @@ def main():
     args = parser.parse_args()
 
     # Determine the index file
-    if os.path.isdir(args.index):
-        index_file = os.path.join(args.index, 'index.jsonc')
+    if os.path.isdir(args.index_file):
+        index_file = os.path.join(args.index_file, 'index.jsonc')
     else:
-        index_file = args.index
+        index_file = args.index_file
 
     # Check if the index file exists
     if not os.path.exists(index_file):
@@ -32,11 +33,12 @@ def main():
 
     # Load the configuration file
     config_path = args.config
-    config = DEFAULT_CONFIG
+    config = DEFAULT_CONFIG.copy()
     if os.path.isfile(config_path):
-        config = merge_configs(config, load_config(config_path))
+        config = load_config(config_path)
+        # config = merge_configs(config, load_config(config_path))
 
-    print(config)
+    print(json.dumps(config, indent=4))
 
     # Determine the output directory and create it if needed
     output_dir = args.outdir
