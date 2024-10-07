@@ -27,13 +27,14 @@ DEFAULT_CONFIG = {
 
 def index_file_dir(config):
     if not 'main' in config:
-        print('using variable index-file-dir before defining \`main\` section in config file')
+        print('Warning: using variable index-file-dir before defining `main` section in config file')
         return '{index-file-dir}'
     if not 'index_file' in config['main']:
-        print('using variable index-file-dir before defining \`index_file\` in \`main\` section in config file')
+        print('Warning: using variable index-file-dir before defining `index_file` in `main` section in config file')
         return '{index-file-dir}'
-    return os.path.dirname(config['main']['index_file'])
+    res = os.path.dirname(config['main']['index_file'])
+    return res if res else './'
 
 PREDEFINED_VARIABLES = {
-    'index-file-dir': lambda config: os.path.dirname(config['main']['index_file'])
+    'index-file-dir': index_file_dir
 }

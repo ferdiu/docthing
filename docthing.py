@@ -35,10 +35,7 @@ def main():
     config_path = args.config
     config = DEFAULT_CONFIG.copy()
     if os.path.isfile(config_path):
-        config = load_config(config_path)
-        # config = merge_configs(config, load_config(config_path))
-
-    print(json.dumps(config, indent=4))
+        config = merge_configs(config, load_config(config_path))
 
     # Determine the output directory and create it if needed
     output_dir = args.outdir
