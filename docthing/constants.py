@@ -32,7 +32,7 @@ def index_file_dir(config):
     if not 'index_file' in config['main']:
         print('Warning: using variable index-file-dir before defining `index_file` in `main` section in config file')
         return '{index-file-dir}'
-    res = os.path.dirname(config['main']['index_file'])
+    res = os.path.abspath(os.path.dirname(config['main']['index_file']))
     return res if res else './'
 
 PREDEFINED_VARIABLES = {
