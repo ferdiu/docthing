@@ -66,6 +66,7 @@ DEFAULT_CONFIG = {
     },
 }
 
+
 def index_file_dir(config):
     """
     Determine the directory containing the index file based on the configuration.
@@ -86,6 +87,7 @@ def index_file_dir(config):
         return '{index-file-dir}'
     res = os.path.abspath(os.path.dirname(config['main']['index_file']))
     return res if res else './'
+
 
 PREDEFINED_VARIABLES = {
     'index-file-dir': index_file_dir

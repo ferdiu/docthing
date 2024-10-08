@@ -46,7 +46,8 @@ def _regex_begin_documentation(ext, parser_config):
         # TODO: implement support for single line comments
         raise ValueError('allow_sl_comments is not supported yet')
     else:
-        res = '^' + parser_config[ext]['begin_ml_comment'] + ' *' + parser_config['begin_doc'] + ' *(\\(.*\\))? *$'
+        res = '^' + parser_config[ext]['begin_ml_comment'] + \
+            ' *' + parser_config['begin_doc'] + ' *(\\(.*\\))? *$'
         return re.compile(res)
 
 
@@ -69,7 +70,8 @@ def _regex_end_documentation(ext, parser_config):
         # TODO: implement support for single line comments
         raise ValueError('allow_sl_comments is not supported yet')
     else:
-        res = '^ *' + parser_config['end_doc'] + ' *' + parser_config[ext]['end_ml_comment'] + ' *$'
+        res = '^ *' + parser_config['end_doc'] + ' *' + \
+            parser_config[ext]['end_ml_comment'] + ' *$'
         return re.compile(res)
 
 
@@ -126,13 +128,15 @@ def _peek_n_read_if_match(path_to_file, parser_config):
 
     with open(path_to_file) as input_file:
         # Peek the first `line_number` lines
-        document_lines = [next(input_file) for _ in range(parser_config['peek_lines'])]
+        document_lines = [next(input_file)
+                          for _ in range(parser_config['peek_lines'])]
 
-        first_line_index = [i for i, item in enumerate(document_lines) if re.search(begin_regex, item)]
+        first_line_index = [i for i, item in enumerate(
+            document_lines) if re.search(begin_regex, item)]
 
         # If none of the lines match the begin_regex, return None
         if len(first_line_index) == 0:
-            return None
+            return None, None
 
         first_line_index = first_line_index[0]
 

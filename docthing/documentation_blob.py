@@ -10,12 +10,14 @@ To export the documentation in a specific format, you can use an `Exporter Plugi
 class that implements the [`Exporter`](@Exporter) abstract class.
 END FILE DOCUMENTATION '''
 
+
 class DocumentationBlob:
     '''
     DocumentationBlob is a class that represents a blob of documentation.
         It contains the entire project documentation documentation in a output agnostic way.
         It can be used to generate documentation in various formats.
     '''
+
     def __init__(self, index_file, config):
         self.index_file = index_file
         self.config = config

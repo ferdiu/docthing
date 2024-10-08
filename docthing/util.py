@@ -7,6 +7,7 @@ from .constants import PREDEFINED_VARIABLES
 
 ########## COMMON UTILS ##########
 
+
 def mkdir_silent(output_dir):
     '''
     Creates the specified output directory if it doesn't already exist.
@@ -96,7 +97,7 @@ def _variable_replace_single(config, variable_path_in_config, value):
 
         splitted_path = variable_name.split('.')
         # Preserve key and sections
-        sections = splitted_path[:-1] # remove the key itself
+        sections = splitted_path[:-1]  # remove the key itself
 
         # Check if the variable is predefined
         if variable_name in PREDEFINED_VARIABLES:
@@ -109,7 +110,8 @@ def _variable_replace_single(config, variable_path_in_config, value):
                 current = config.copy()
                 for section in sections:
                     if section not in current:
-                        print(f"Warning: Section {section} not found in config file.")
+                        print(f"Warning: Section {
+                              section} not found in config file.")
                         break
                     current = current[section]
 
@@ -124,7 +126,8 @@ def _variable_replace_single(config, variable_path_in_config, value):
                 current_variable_scope = config.copy()
                 for section in variable_path_in_config.split('.')[:-1]:
                     if section not in current_variable_scope:
-                        print(f"Warning: Section {section} not found in config file.")
+                        print(f"Warning: Section {
+                              section} not found in config file.")
                         break
                     current_variable_scope = current_variable_scope[section]
                 if variable_name in current_variable_scope:
@@ -137,14 +140,16 @@ def _variable_replace_single(config, variable_path_in_config, value):
                 res = [res + str(item) for item in partial_res]
             # bot partial_res and res are lists
             elif isinstance(partial_res, list) and isinstance(res, list):
-                res = [str(res_item) + str(pres_item) for res_item in res for pres_item in partial_res]
+                res = [str(res_item) + str(pres_item)
+                       for res_item in res for pres_item in partial_res]
             # res is a list and partial_res is a string
             elif isinstance(partial_res, str) and isinstance(res, list):
                 res = [str(item) + str(partial_res) for item in res]
-            else: # both strings
+            else:  # both strings
                 res = res + partial_res
         else:
-            print(f"Warning: Variable {variable_name} not found in config file.")
+            print(f"Warning: Variable {
+                  variable_name} not found in config file.")
             # reappend the variable name into the string
             res = res + '{' + variable_name + '}'
 
@@ -202,7 +207,8 @@ def load_config(config_path):
                     if len(section.split("|", 1)) == 2:
                         # section with subsections
                         # extract the subsections...
-                        subsections = [ss.strip() for ss in section.split("|", 1)[1].split("|")]
+                        subsections = [ss.strip()
+                                       for ss in section.split("|", 1)[1].split("|")]
                         # ... and the section
                         section = section.split("|", 1)[0]
                         # check main section was already initialized otherwise initialize it
@@ -219,18 +225,20 @@ def load_config(config_path):
                     continue
                 else:
                     if '=' not in line:
-                        print(f"Warning: invalid line ({i_line+1}) ignored: {line}")
+                        print(f"Warning: invalid line ({
+                              i_line+1}) ignored: {line}")
                         continue
                     # finally extract key-value pair
                     key, value = line.split('=', 1)
                     interpreted_value = parse_value(value.strip())
                     if len(subsections) > 0:
                         for ss in subsections:
-                            config[section][ss][key.strip()] = _variable_replace_single(config, f'{section}.{ss}.{key.strip()}', interpreted_value)
+                            config[section][ss][key.strip()] = _variable_replace_single(
+                                config, f'{section}.{ss}.{key.strip()}', interpreted_value)
                     else:
-                        config[section][key.strip()] = _variable_replace_single(config, f'{section}.{key.strip()}', interpreted_value)
+                        config[section][key.strip()] = _variable_replace_single(
+                            config, f'{section}.{key.strip()}', interpreted_value)
     else:
         print(f'Warning: file {config_path} does not exist')
 
     return config
-
