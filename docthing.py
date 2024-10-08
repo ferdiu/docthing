@@ -9,14 +9,22 @@ import json
 from docthing.util import load_config, merge_configs, mkdir_silent
 from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
 from docthing.index import process_index
+from docthing.documentation_blob import DocumentationBlob
+from docthing.plugins.manager import PluginManager
+# from docthing.plugins.exporter. import TODO
+from docthing.plugins.meta_interpreter.plantuml import PlantUMLInterpreter
 
 
 # Main function to handle command-line arguments and execute the documentation generation
 def main():
-    parser = argparse.ArgumentParser(description="Generate documentation from project index file.")
-    parser.add_argument('index_file', help="Index file or project directory containing index.jsonc")
-    parser.add_argument('--config', help="Relative to index directory path to configuration file", default=DEFAULT_CONFIG_FILE)
-    parser.add_argument('--outdir', help="Output directory for documentation", default=DEFAULT_OUTPUT_DIR)
+    parser = argparse.ArgumentParser(
+        description="Generate documentation from project index file.")
+    parser.add_argument(
+        'index_file', help="Index file or project directory containing index.jsonc")
+    parser.add_argument(
+        '--config', help="Relative to index directory path to configuration file", default=DEFAULT_CONFIG_FILE)
+    parser.add_argument(
+        '--outdir', help="Output directory for documentation", default=DEFAULT_OUTPUT_DIR)
 
     args = parser.parse_args()
 
@@ -40,6 +48,13 @@ def main():
     # Determine the output directory and create it if needed
     output_dir = args.outdir
     mkdir_silent(output_dir)
+
+    # Initialize the plugin manager for MetaInterpreters
+    interpreter_manager = PluginManager(
+        'meta-interpreter', [PlantUMLInterpreter])
+
+    # Initialize the plugin manager for Exporters
+    interpreter_manager = PluginManager('exporter', [])
 
     # Process the index file and generate the documentation
     # TODO: test from here

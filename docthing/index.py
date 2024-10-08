@@ -32,18 +32,15 @@ def process_index(index_file, output_dir, config):
     # Handle the intro section if exists
     if 'intro' in index_data:
         intro_file = index_data['intro']
-        _generate_documentation_from_source_code(
-            intro_file, output_dir, 'intro.md', config)
+        _generate_documentation_from_source_code(intro_file, output_dir, 'intro.md', config)
 
     # Handle the quick start section if exists
     if 'quick' in index_data:
         quick_file = index_data['quick']
-        _generate_documentation_from_source_code(
-            quick_file, output_dir, 'quick_start.md', config)
+        _generate_documentation_from_source_code(quick_file, output_dir, 'quick_start.md', config)
 
     # Process the chapters and sections
-    _process_chapters(index_data, output_dir, config,
-                      exclude_keys=['intro', 'quick'])
+    _process_chapters(index_data, output_dir, config, exclude_keys = ['intro', 'quick'])
 
 
 ###### CHAPTER INTERPRETER ######
@@ -68,8 +65,7 @@ def _process_chapters(data, output_dir, config, exclude_keys=[]):
             process_index(value, output_dir, exclude_keys, config)
         elif isinstance(value, str):
             # Single documentation file
-            _generate_documentation_from_source_code(
-                value, output_dir, key + '.md', config)
+            _generate_documentation_from_source_code(value, output_dir, key + '.md', config)
         elif isinstance(value, dict):
             # Nested documentation structure
             sub_dir = os.path.join(output_dir, key)
@@ -78,8 +74,7 @@ def _process_chapters(data, output_dir, config, exclude_keys=[]):
         elif isinstance(value, list):
             # List of documentation files
             for i, filename in enumerate(value, start=1):
-                _generate_documentation_from_source_code(
-                    filename, output_dir, f"{key}_{i}.md", config)
+                _generate_documentation_from_source_code(filename, output_dir, f"{key}_{i}.md", config)
 
 
 ###### FILE GENERATORS ######
@@ -128,3 +123,4 @@ def _generate_documentation_from_source_code(source_code, output_dir, dest_filen
         # In no documentation was found, create an empty file
         with open(os.path.join(output_dir, dest_filename), 'w') as f:
             f.write('')
+

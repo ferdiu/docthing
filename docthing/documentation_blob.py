@@ -8,6 +8,8 @@ used to generate documentation in various formats.
 
 To export the documentation in a specific format, you can use an `Exporter Plugin` which is a
 class that implements the [`Exporter`](@Exporter) abstract class.
+After being correctly instantiated, a DocumentationBlob can be exported to a specific format passing
+it to the constructor of the `Exporter` implementation.
 END FILE DOCUMENTATION '''
 
 
