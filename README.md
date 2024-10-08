@@ -84,7 +84,7 @@ The _documentations options_ are optional annotations that can be added at the r
 
 > Example:
 > ```conf
-> /** BEGIN FILE DOCUMENTATION (level: 2, user-defined-option: "value")
+> /* BEGIN FILE DOCUMENTATION (level: 2, user-defined-option: "value")
 > [markdown-formatted documentation goes here]
 > END FILE DOCUMENTATION */
 > ```
@@ -96,7 +96,7 @@ The options can be customized by the user but are not mandatory. Some options ar
 - `level: (number)`: the level of the documentation section. This is a number indicating how in-depth the documentation is. If not specified it will be set to 0 by default. This option is used to choose whether or not to include documentation in the final output based on the selected `documentation-level` configured in the configuration file or passed via command-line options: it works as an upper bound threshold;
 > Example: the following documentation will be included in the final output only if the `documentation-level` is set to 2 or higher:
 > ```conf
-> /** BEGIN FILE DOCUMENTATION (level: 2)
+> /* BEGIN FILE DOCUMENTATION (level: 2)
 > [markdown-formatted documentation goes here]
 > END FILE DOCUMENTATION */
 > ```
@@ -104,7 +104,7 @@ The options can be customized by the user but are not mandatory. Some options ar
 - `level-only: (boolean)`: if set to `true` the documentation will be included in the final output only if the `documentation-level` configured in the configuration file or passed via command-line options is equal to the `level` option. Has no effect if not associated with a `level` option;
 > Example: the following documentation will be included in the final output only if the `documentation-level` is set **exactly** to 2:
 > ```conf
-> /** BEGIN FILE DOCUMENTATION (level: 2, level-only: true)
+> /* BEGIN FILE DOCUMENTATION (level: 2, level-only: true)
 > [markdown-formatted documentation goes here]
 > END FILE DOCUMENTATION */
 > ```

@@ -84,7 +84,7 @@ This section provides language-specific parser configurations for specific langu
 
 - `begin_ml_comment`: Specifies the string used to mark the start of multi-line comments in JavaScript/TypeScript files.
 > Example:
-> `begin_ml_comment=/**`
+> `begin_ml_comment=/*`
 
 - `end_ml_comment`: Specifies the string used to mark the end of multi-line comments in JavaScript/TypeScript files.
 > Example:
@@ -117,7 +117,7 @@ allow_sl_comments=false
 peek_lines=1
 
 [parser|js|jsx|ts|tsx]
-begin_ml_comment=/**
+begin_ml_comment=/*
 end_ml_comment=*/
 allow_sl_comments=false
 ```
