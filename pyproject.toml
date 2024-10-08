@@ -1,0 +1,25 @@
+[project]
+name = "docthing"
+version = "0.0.1"
+authors = [
+  { name="Federico Manzella", email="ferdiu.cow.a.bunga@gmail.com" },
+]
+description = "Simple tool to extract high-level documentation from the projects source code"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Documentation",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Documentation",
+]
+
+[project.urls]
+Homepage = "https://github.com/ferdiu/docthing"
+Issues = "https://github.com/ferdiu/docthing/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
