@@ -52,6 +52,8 @@ DEFAULT_CONFIG = {
         'ts': _c_like_languages_parser_config,     # TypeScript
         'cts': _c_like_languages_parser_config,    # TypeScript (commonjs)
         'mts': _c_like_languages_parser_config,    # TypeScript (module)
+        'jsx': _c_like_languages_parser_config,    # React and React Native JavaScript
+        'tsx': _c_like_languages_parser_config,    # React and React Native TypeScript
         'jl': {                                    # Julia
             'begin_ml_comment': "#=",
             'end_ml_comment': "=#",
