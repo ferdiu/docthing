@@ -15,6 +15,7 @@ classifiers = [
     "Topic :: Software Development",
     "Topic :: Software Development :: Documentation",
 ]
+dependencies = ["schema"]
 
 [project.urls]
 Homepage = "https://github.com/ferdiu/docthing"

@@ -1,5 +1,6 @@
 
 from abc import ABC, abstractmethod
+import shutil
 
 
 class PluginInterface(ABC):
@@ -39,6 +40,7 @@ class PluginInterface(ABC):
         '''
         Load the plugin and perform any necessary initialization.
         '''
+        print(f"Loading plugin: {self.get_name()}")
         self._load()
         self.loaded = True
 
@@ -54,3 +56,33 @@ class PluginInterface(ABC):
         Check if the plugin is loaded.
         '''
         return self.loaded
+
+    @abstractmethod
+    def get_name(self):
+        '''
+        Return the name of the plugin.
+        '''
+        pass
+
+    @abstractmethod
+    def get_description(self):
+        '''
+        Return the description of the plugin.
+        '''
+        pass
+
+    @abstractmethod
+    def get_dependencies(self):
+        '''
+        Return the list of dependencies required by the plugin.
+        '''
+        pass
+
+    def are_dependencies_available(self):
+        '''
+        Check if all the dependencies required by the plugin are available.
+        '''
+        for dep in self.get_dependencies():
+            if not shutil.which(dep):
+                return False
+        return True

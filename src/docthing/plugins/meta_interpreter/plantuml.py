@@ -27,10 +27,10 @@ class PlantUMLInterpreter(MetaInterpreter):
     def _get_end_code(self):
         return r'^@enduml$'
 
-    def _does_keep_beginning(self):
+    def _should_keep_beginning(self):
         return True
 
-    def _does_keep_ending(self):
+    def _should_keep_ending(self):
         return True
 
 

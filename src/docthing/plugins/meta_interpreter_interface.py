@@ -13,7 +13,6 @@ END FILE DOCUMENTATION '''
 import os
 import re
 import uuid
-import shutil
 
 from abc import ABC, abstractmethod
 from .plugin_interface import PluginInterface
@@ -48,36 +47,6 @@ class MetaInterpreter(PluginInterface):
         pass
 
     @abstractmethod
-    def get_name(self):
-        '''
-        Return the name of the meta-interpreter.
-        '''
-        pass
-
-    @abstractmethod
-    def get_description(self):
-        '''
-        Return the description of the meta-interpreter.
-        '''
-        pass
-
-    @abstractmethod
-    def get_dependencies(self):
-        '''
-        Return the list of dependencies required by the meta-interpreter.
-        '''
-        pass
-
-    def are_dependencies_available(self):
-        '''
-        Check if all the dependencies required by the meta-interpreter are available.
-        '''
-        for dep in self.get_dependencies():
-            if not shutil.which(dep):
-                return False
-        return True
-
-    @abstractmethod
     def _get_begin_code(self):
         '''
         Return the regular expression for the beginning of the code block.
@@ -91,13 +60,13 @@ class MetaInterpreter(PluginInterface):
         '''
         pass
 
-    def _does_keep_beginning(self):
+    def _should_keep_beginning(self):
         '''
         Return whether the beginning of the code block should be kept in the final code or not.
         '''
         return False
 
-    def _does_keep_ending(self):
+    def _should_keep_ending(self):
         '''
         Return whether the end of the code block should be kept in the final code or not.
         '''
@@ -121,7 +90,7 @@ class MetaInterpreter(PluginInterface):
         '''
         res = []
 
-        if self._does_keep_beginning():
+        if self._should_keep_beginning():
             real_beginning = beginning
         else:
             real_beginning = beginning + 1
@@ -129,7 +98,7 @@ class MetaInterpreter(PluginInterface):
         for i in range(real_beginning, len(lines)):
             # reached end of plantuml code
             if self.is_end_code(lines[i]):
-                if self._does_keep_ending():
+                if self._should_keep_ending():
                     res.append(lines[i])
                 break
 

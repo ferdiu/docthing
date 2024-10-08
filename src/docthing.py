@@ -5,7 +5,8 @@ END FILE DOCUMENTATION '''
 import os
 import argparse
 
-from docthing.util import load_config, merge_configs, mkdir_silent
+from docthing.util import mkdir_silent
+from docthing.config import load_config, merge_configs, validate_config
 from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
 from docthing.documentation_blob import DocumentationBlob
 from docthing.plugins.manager import PluginManager
@@ -39,7 +40,7 @@ def main():
 
     command_line_config = {
         'main': {
-            'index': index_file
+            'index_file': index_file
         },
         'output': {
             'dir': args.outdir
@@ -52,16 +53,20 @@ def main():
     if os.path.isfile(config_path):
         config = merge_configs(config, load_config(config_path, command_line_config))
 
+    validate_config(config)
+
     # Determine the output directory and create it if needed
     output_dir = args.outdir
     mkdir_silent(output_dir)
 
     # Initialize the plugin manager for MetaInterpreters
     interpreter_manager = PluginManager(
-        'meta-interpreter', [PlantUMLInterpreter])
+        'meta-interpreter', [PlantUMLInterpreter({})])
+    interpreter_manager.load_plugins(config['main']['meta'] if 'meta' in config['main'] else [])
 
     # Initialize the plugin manager for Exporters
     exporter_manager = PluginManager('exporter', [])
+    exporter_manager.load_plugins(config['output']['type'])
 
     # Process the index file and generate the documentation
     blob = DocumentationBlob(index_file, config)
