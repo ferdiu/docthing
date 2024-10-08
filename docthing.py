@@ -6,7 +6,7 @@ import os
 import argparse
 import json
 
-from docthing.util import load_config, merge_configs, create_output_directory
+from docthing.util import load_config, merge_configs, mkdir_silent
 from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
 from docthing.index import process_index
 
@@ -39,7 +39,7 @@ def main():
 
     # Determine the output directory and create it if needed
     output_dir = args.outdir
-    create_output_directory(output_dir)
+    mkdir_silent(output_dir)
 
     # Process the index file and generate the documentation
     # TODO: test from here

@@ -8,7 +8,7 @@ import shutil
 from pathlib import Path
 from .extractor import extract_documentation
 
-from .util import create_output_directory
+from .util import mkdir_silent
 
 
 ###### PUBLIC ######
@@ -69,7 +69,7 @@ def _process_chapters(data, output_dir, config, exclude_keys=[]):
         elif isinstance(value, dict):
             # Nested documentation structure
             sub_dir = os.path.join(output_dir, key)
-            create_output_directory(sub_dir)
+            mkdir_silent(sub_dir)
             _process_chapters(value, sub_dir, config)
         elif isinstance(value, list):
             # List of documentation files

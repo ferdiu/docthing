@@ -1,6 +1,8 @@
 
 import re
 import os
+from .util import parse_value
+
 
 ####### PUBLIC #######
 
@@ -15,7 +17,10 @@ def extract_documentation(path_to_file, parser_config):
         Returns:
             str or None: The extracted documentation, or None if no documentation was found.
     """
-    res = _peek_n_read_if_match(path_to_file, parser_config)
+    res, options = _peek_n_read_if_match(path_to_file, parser_config)
+
+    print('file:', path_to_file)
+    print('options:', options)
 
     if res is None:
         print('Warning: no documentation found correspondig to path ' + path_to_file)
@@ -35,10 +40,10 @@ def _regex_begin_documentation(ext, parser_config):
 
         Returns:
             re.Pattern: A compiled regular expression pattern that matches the end of a documentation block, or None if no parser configuration is found for the given extension.
-            if not ext in parser_config:
-            print('Warning: no parser configuration for extension ' + ext)
-            return None
     '''
+    if not ext in parser_config:
+        print('Warning: no parser configuration for extension ' + ext)
+        return None
 
     if 'allow_sl_comments' in parser_config and parser_config['allow_sl_comments']:
         # TODO: implement support for single line comments
@@ -46,6 +51,7 @@ def _regex_begin_documentation(ext, parser_config):
     else:
         res = '^' + parser_config[ext]['begin_ml_comment'] + ' *' + parser_config['begin_doc'] + ' *(\\(.*\\))? *$'
         return re.compile(res)
+
 
 def _regex_end_documentation(ext, parser_config):
     '''
@@ -57,10 +63,10 @@ def _regex_end_documentation(ext, parser_config):
 
         Returns:
             re.Pattern: A compiled regular expression pattern that matches the end of a documentation block, or None if no parser configuration is found for the given extension.
-            if not ext in parser_config:
-            print('Warning: no parser configuration for extension ' + ext)
-            return None
     '''
+    if not ext in parser_config:
+        print('Warning: no parser configuration for extension ' + ext)
+        return None
 
     if 'allow_sl_comments' in parser_config and parser_config['allow_sl_comments']:
         # TODO: implement support for single line comments
@@ -68,6 +74,39 @@ def _regex_end_documentation(ext, parser_config):
     else:
         res = '^ *' + parser_config['end_doc'] + ' *' + parser_config[ext]['end_ml_comment'] + ' *$'
         return re.compile(res)
+
+
+####### OPTIONS #######
+
+def _parse_options(line):
+    '''
+    Parses the options string from a documentation block line.
+
+    Args:
+        line (str): The line containing the options string.
+
+    Returns:
+        dict: A dictionary of parsed options, where the keys are the option names and the values are the parsed option values.
+    '''
+    res = {}
+
+    m = re.search(r'\((.*)\)', line)
+
+    if not m:
+        return res
+
+    options = []
+    if len(m.groups()) > 0 and m.groups()[0]:
+        options = m.groups()[0].split(',')
+
+    for opt in options:
+        splitted = opt.split(':')
+        if len(splitted) == 2:
+            res[splitted[0].strip()] = parse_value(splitted[1].strip())
+        else:
+            res[splitted[0].strip()] = True
+
+    return res
 
 
 ####### IO #######
@@ -82,7 +121,7 @@ def _peek_n_read_if_match(path_to_file, parser_config):
             parser_config (dict): The parser configuration dictionary.
 
         Returns:
-            list[str] or None: A list of strings containing the lines of the documentation block, or None if no documentation block is found.
+            (list[str], options) or None: A list of strings containing the lines of the documentation block and extracted options in a tuple, or None if no documentation block is found.
     """
     ext = os.path.splitext(path_to_file)[1].replace('.', '')
     begin_regex = _regex_begin_documentation(ext, parser_config)
@@ -100,14 +139,7 @@ def _peek_n_read_if_match(path_to_file, parser_config):
 
         first_line_index = first_line_index[0]
 
-        # TODO: options
-        # m = re.search(begin_regex, document_lines[first_line_index])
-        # options = []
-        # if len(m.groups()) > 0:
-        #     options = m.groups()[0].split(',')
-
-        # TODO: interpret options
-        # TODO: apply options
+        options = _parse_options(document_lines[first_line_index])
 
         first_line_index += 1
         last_line_index = first_line_index
@@ -124,4 +156,4 @@ def _peek_n_read_if_match(path_to_file, parser_config):
                 print('Warning: reached end of file before end of documentation: this usually means that the documentation is not properly closed or the entire file contains only documentation')
                 break
 
-        return document_lines[first_line_index:last_line_index]
+        return document_lines[first_line_index:last_line_index], options

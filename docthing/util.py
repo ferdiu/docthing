@@ -7,16 +7,78 @@ from .constants import PREDEFINED_VARIABLES
 
 ########## COMMON UTILS ##########
 
-# Helper function to create output directory if it doesn't exist
-def create_output_directory(output_dir):
+def mkdir_silent(output_dir):
+    '''
+    Creates the specified output directory if it doesn't already exist.
+
+    This function checks if the given `output_dir` path exists, and if not, it creates the directory and any necessary parent directories using `os.makedirs()`.
+
+    This is a utility function that can be used to ensure that an output directory is available before writing files to it.
+
+    Args:
+        output_dir (str): The path of the output directory to create.
+    '''
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
 
+def parse_value(value_str):
+    '''
+    Parses a string value into a Python data type.
+
+    This function takes a string representation of a value and attempts to convert it
+    to the appropriate Python data type. It handles the following cases:
+
+    - 'true' -> True
+    - 'false' -> False
+    - 'null' or 'none' -> None
+    - Comma-separated list of values -> List of parsed values
+    - Integer -> int
+    - Float -> float
+    - Otherwise, returns the original string
+
+    This function is useful for parsing configuration values or other user-provided
+    string data into the appropriate Python types.
+    '''
+    if value_str.lower() == 'true':
+        return True
+    elif value_str.lower() == 'false':
+        return False
+    elif value_str.lower() == 'null' or value_str.lower() == 'none':
+        return None
+    elif ',' in value_str:
+        return [parse_value(item.strip()) for item in value_str.split(',')]
+    try:
+        return int(value_str)
+    except ValueError:
+        try:
+            return float(value_str)
+        except ValueError:
+            return value_str
+
+
 ########## CONFIGURATION FILE ##########
 
-# Perform variable replacement in a string
-def variable_replace_single(config, variable_path_in_config, value):
+def _variable_replace_single(config, variable_path_in_config, value):
+    '''
+    Replaces a single variable in the provided configuration with the given value.
+
+    This function takes a configuration dictionary, a variable path within the configuration, and a value to replace the variable with. It handles the case where the value contains variables that need to be recursively replaced.
+
+    The function first checks if the value contains any variables by looking for the `{` and `}` characters. If not, it simply returns the value as is.
+
+    If the value does contain variables, the function extracts the variable name, looks up the value in the configuration, and replaces the variable with the corresponding value. If the variable is not found in the configuration, a warning is printed and the original variable name is left in the string.
+
+    The function supports both simple variable names (e.g. `{my_variable}`) and nested variable names (e.g. `{section.my_variable}`). It also handles the case where the value is a list, and replaces each element of the list with the corresponding variable value.
+
+    Args:
+        config (dict): The configuration dictionary to use for variable replacement.
+        variable_path_in_config (str): The path to the variable within the configuration dictionary.
+        value (str): The value to replace the variable with.
+
+    Returns:
+        str: The value with all variables replaced.
+    '''
     if not isinstance(value, str) or '{' not in value:
         return value
 
@@ -73,7 +135,7 @@ def variable_replace_single(config, variable_path_in_config, value):
             # partial_res is a list and res is a string
             if isinstance(partial_res, list) and isinstance(res, str):
                 res = [res + str(item) for item in partial_res]
-            # bot partial_res and res are strings
+            # bot partial_res and res are lists
             elif isinstance(partial_res, list) and isinstance(res, list):
                 res = [str(res_item) + str(pres_item) for res_item in res for pres_item in partial_res]
             # res is a list and partial_res is a string
@@ -89,26 +151,18 @@ def variable_replace_single(config, variable_path_in_config, value):
         remaining_value = remaining_value.split('}', 1)[0]
     return res
 
-# Parse values from a string from config
-def parse_value(value_str):
-    if value_str.lower() == 'true':
-        return True
-    elif value_str.lower() == 'false':
-        return False
-    elif value_str.lower() == 'null' or value_str.lower() == 'none':
-        return None
-    elif ',' in value_str:
-        return [parse_value(item.strip()) for item in value_str.split(',')]
-    try:
-        return int(value_str)
-    except ValueError:
-        try:
-            return float(value_str)
-        except ValueError:
-            return value_str
 
-# Helper function to merge configurations
 def merge_configs(config1, config2):
+    '''
+    Merges two configuration dictionaries, recursively handling nested dictionaries.
+
+    Args:
+        config1 (dict): The first configuration dictionary to merge.
+        config2 (dict): The second configuration dictionary to merge.
+
+    Returns:
+        dict: A new dictionary that is the result of merging the two input configurations.
+    '''
     merged_config = config1.copy()
     for key, value in config2.items():
         if key in config1:
@@ -120,8 +174,17 @@ def merge_configs(config1, config2):
             merged_config[key] = value
     return merged_config
 
-# Helper function to load the config file
+
 def load_config(config_path):
+    '''
+    Loads a configuration from the specified file path.
+
+    Args:
+        config_path (str): The path to the configuration file.
+
+    Returns:
+        dict: The loaded configuration as a dictionary.
+    '''
     config = {}
     section = None
     subsections = []
@@ -163,9 +226,9 @@ def load_config(config_path):
                     interpreted_value = parse_value(value.strip())
                     if len(subsections) > 0:
                         for ss in subsections:
-                            config[section][ss][key.strip()] = variable_replace_single(config, f'{section}.{ss}.{key.strip()}', interpreted_value)
+                            config[section][ss][key.strip()] = _variable_replace_single(config, f'{section}.{ss}.{key.strip()}', interpreted_value)
                     else:
-                        config[section][key.strip()] = variable_replace_single(config, f'{section}.{key.strip()}', interpreted_value)
+                        config[section][key.strip()] = _variable_replace_single(config, f'{section}.{key.strip()}', interpreted_value)
     else:
         print(f'Warning: file {config_path} does not exist')
 
