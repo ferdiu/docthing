@@ -12,6 +12,10 @@ After being correctly instantiated, a DocumentationBlob can be exported to a spe
 it to the constructor of the `Exporter` implementation.
 END FILE DOCUMENTATION '''
 
+import json
+
+from .index import process_index
+
 
 class DocumentationBlob:
     '''
@@ -21,8 +25,11 @@ class DocumentationBlob:
     '''
 
     def __init__(self, index_file, config):
-        self.index_file = index_file
+        with open(index_file, 'r') as f:
+            self.index_file = json.load(f)
         self.config = config
+        # TODO: remove this!!!
+        process_index(index_file, self.config['output']['dir'], self.config)
 
 
 class DocumentationNode(object):

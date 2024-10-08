@@ -4,11 +4,9 @@ END FILE DOCUMENTATION '''
 
 import os
 import argparse
-import json
 
 from docthing.util import load_config, merge_configs, mkdir_silent
 from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
-from docthing.index import process_index
 from docthing.documentation_blob import DocumentationBlob
 from docthing.plugins.manager import PluginManager
 # from docthing.plugins.exporter. import TODO
@@ -66,8 +64,7 @@ def main():
     exporter_manager = PluginManager('exporter', [])
 
     # Process the index file and generate the documentation
-    # TODO: test from here
-    process_index(index_file, output_dir, config)
+    blob = DocumentationBlob(index_file, config)
 
 
 if __name__ == "__main__":

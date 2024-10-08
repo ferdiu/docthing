@@ -4,9 +4,18 @@
 
 Simple tool to extract high-level documentation from the projects.
 
-#### Rationale
+### Rationale
 
 Documentation is crucial for maintaining a clear understanding of a project's architecture, ensuring that developers and stakeholders can easily comprehend how the system works. Keeping documentation up-to-date with the source code is vital to avoid discrepancies that can lead to confusion and inefficiency. To achieve this, it's essential to keep documentation as close to the code as possible, enabling seamless updates as the code evolves. Additionally, offering multiple levels of documentation, as highlighted by the [C4](https://c4model.com/) model, allows different audiences—whether technical experts or non-technical stakeholders—to access the right level of detail, from high-level system overviews to detailed component interactions.
+
+### Features
+
+- 🔧 Highly configurable
+- 📈 Scalable
+- 🏴‍☠️ Language agnostic
+- 🤏 Small fingerprint
+- 🔌 Extensible (Plugins)
+- 🖼️ LOD (Level Of Details: choose the in-depth level of your documentation dynamically)
 
 ## Table of Contents
 
