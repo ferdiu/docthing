@@ -19,9 +19,6 @@ def extract_documentation(path_to_file, parser_config):
     """
     res, options = _peek_n_read_if_match(path_to_file, parser_config)
 
-    print('file:', path_to_file)
-    print('options:', options)
-
     if res is None:
         print('Warning: no documentation found correspondig to path ' + path_to_file)
 

@@ -3,6 +3,7 @@
     "configuration": "CONFIG-FILE.md",
     "Chapter 1": "docthing.py",
     "Chapter 2": {
+        "DocumentationBlob": "docthing/documentation_blob.py",
         "Utils": "docthing/util.py",
         "Index": "docthing/index.py",
         "Constants": "docthing/constants.py"
