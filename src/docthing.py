@@ -63,7 +63,7 @@ def main():
         'meta-interpreter', [PlantUMLInterpreter])
 
     # Initialize the plugin manager for Exporters
-    interpreter_manager = PluginManager('exporter', [])
+    exporter_manager = PluginManager('exporter', [])
 
     # Process the index file and generate the documentation
     # TODO: test from here
