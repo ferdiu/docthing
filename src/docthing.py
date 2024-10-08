@@ -20,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate documentation from project index file.")
     parser.add_argument(
-        'index_file', help="Index file or project directory containing index.jsonc")
+        'index_file', help="Index file or project directory containing docthing.jsonc", nargs='?', default=os.getcwd())
     parser.add_argument(
         '--config', help="Relative to index directory path to configuration file", default=DEFAULT_CONFIG_FILE)
     parser.add_argument(
@@ -30,7 +30,7 @@ def main():
 
     # Determine the index file
     if os.path.isdir(args.index_file):
-        index_file = os.path.join(args.index_file, 'index.jsonc')
+        index_file = os.path.join(args.index_file, 'docthing.jsonc')
     else:
         index_file = args.index_file
 
@@ -39,11 +39,20 @@ def main():
         print(f"Error: Index file {index_file} does not exist.")
         return
 
+    command_line_config = {
+        'main': {
+            'index': index_file
+        },
+        'output': {
+            'dir': args.outdir
+        }
+    }
+
     # Load the configuration file
     config_path = args.config
     config = DEFAULT_CONFIG.copy()
     if os.path.isfile(config_path):
-        config = merge_configs(config, load_config(config_path))
+        config = merge_configs(config, load_config(config_path, command_line_config))
 
     # Determine the output directory and create it if needed
     output_dir = args.outdir

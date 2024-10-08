@@ -28,7 +28,7 @@ The `main` section includes general configurations, such as file extensions to p
 
 - `index_file`: Specifies the name of the index file. If this is also provided via the command line, the command-line option takes precedence.
 > Example:
-> `index_file=index.jsonc`
+> `index_file=docthing.jsonc`
 
 - `exts`: Specifies the file extensions that docthing should process. If directories are provided in the index file, this list will be used to find files to include in the documentation. Multiple extensions can be provided, separated by commas.
 > Example:
@@ -100,7 +100,7 @@ Variables can be referenced within the same section or across sections. When ref
 
 ```conf
 [main]
-index_file=index.jsonc
+index_file=docthing.jsonc
 extensions=js,jsx,ts,tsx
 iexts=test.{extensions}
 meta=plantuml
@@ -123,7 +123,7 @@ allow_sl_comments=false
 ```
 ### In this example:
 
-The index file is `index.jsonc`.
+The index file is `docthing.jsonc`.
 Only `js`, `jsx`, `ts`, and `tsx` files will be processed.
 Files with the pattern `test.{extensions}` will be ignored.
 The output will be generated in a documentation folder inside the index file's directory.

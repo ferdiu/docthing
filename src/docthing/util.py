@@ -180,7 +180,7 @@ def merge_configs(config1, config2):
     return merged_config
 
 
-def load_config(config_path):
+def load_config(config_path, command_line_config):
     '''
     Loads a configuration from the specified file path.
 
@@ -190,7 +190,7 @@ def load_config(config_path):
     Returns:
         dict: The loaded configuration as a dictionary.
     '''
-    config = {}
+    config = command_line_config.copy()
     section = None
     subsections = []
     if os.path.exists(config_path):
@@ -221,7 +221,8 @@ def load_config(config_path):
                     else:
                         # if it was a normal section reset subesction and initialize it
                         subsections = []
-                        config[section] = {}
+                        if section not in config:
+                            config[section] = {}
                     continue
                 else:
                     if '=' not in line:
@@ -233,11 +234,13 @@ def load_config(config_path):
                     interpreted_value = parse_value(value.strip())
                     if len(subsections) > 0:
                         for ss in subsections:
-                            config[section][ss][key.strip()] = _variable_replace_single(
-                                config, f'{section}.{ss}.{key.strip()}', interpreted_value)
+                            if key.strip() not in config[section][ss]: # do not override command line config
+                                config[section][ss][key.strip()] = _variable_replace_single(
+                                    config, f'{section}.{ss}.{key.strip()}', interpreted_value)
                     else:
-                        config[section][key.strip()] = _variable_replace_single(
-                            config, f'{section}.{key.strip()}', interpreted_value)
+                        if key.strip() not in config[section]: # do not override command line config
+                            config[section][key.strip()] = _variable_replace_single(
+                                config, f'{section}.{key.strip()}', interpreted_value)
     else:
         print(f'Warning: file {config_path} does not exist')
 
