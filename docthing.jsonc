@@ -8,5 +8,6 @@
         "Utils": "src/docthing/util.py",
         "Index": "src/docthing/index.py",
         "Constants": "src/docthing/constants.py"
-    }
+    },
+    "TODOs": "TODO.md"
 }
