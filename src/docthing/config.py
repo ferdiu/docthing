@@ -164,7 +164,8 @@ def _variable_replace_single(config, host_var_path):
         if handled:
             res = _combine_values(res, partial_res)
         else:
-            print(f"Warning: Variable {inj_var_name} not found in config file.")
+            print(
+                f"Warning: Variable {inj_var_name} not found in config file.")
             # fallback to original string
             res = res + '{' + inj_var_name + '}'
 
@@ -255,14 +256,16 @@ def load_config(config_path, command_line_config):
                         for ss in subsections:
                             if key.strip() not in config[section][ss]:
                                 # do not override command line config
-                                config[section][ss][key.strip()] = parse_value(value.strip())
+                                config[section][ss][key.strip()] = parse_value(
+                                    value.strip())
                                 config[section][ss][key.strip()] = _variable_replace_single(
                                     config, f'{section}.{ss}.{key.strip()}')
                     else:
                         if key.strip(
                         ) not in config[section]:
                             # do not override command line config
-                            config[section][key.strip()] = parse_value(value.strip())
+                            config[section][key.strip()] = parse_value(
+                                value.strip())
                             config[section][key.strip()] = _variable_replace_single(
                                 config, f'{section}.{key.strip()}')
     else:

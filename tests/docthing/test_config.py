@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import patch, mock_open
-from docthing.config import _variable_replace_single, merge_configs, load_config, validate_config, _combine_values, _split_sections_key, _go_into_scope, _get_var_value
-from docthing.constants import PREDEFINED_VARIABLES
+from docthing.config import _variable_replace_single, merge_configs, load_config
+from docthing.config import validate_config, _combine_values, _split_sections_key
+from docthing.config import _go_into_scope, _get_var_value
 
 
 def test_combine_values():
@@ -10,9 +11,11 @@ def test_combine_values():
     assert _combine_values(["a", "b"], "c") == ["ac", "bc"]
     assert _combine_values(["a", "b"], ["c", "d"]) == ["ac", "ad", "bc", "bd"]
 
+
 def test_split_sections_key():
     assert _split_sections_key(["a", "b", "c"]) == (["a", "b"], "c")
     assert _split_sections_key(["x"]) == ([], "x")
+
 
 def test_go_into_scope():
     config = {
@@ -27,6 +30,7 @@ def test_go_into_scope():
 
     with pytest.raises(ValueError):
         _go_into_scope(config, 123)
+
 
 def test_get_var_value():
     config = {
@@ -79,7 +83,7 @@ def test_variable_replace_single():
     # Test predefined variable replacement
     with patch('docthing.config.PREDEFINED_VARIABLES', mock_predefined_variables):
         result = _variable_replace_single(
-                config, "section1.predefined_var")
+            config, "section1.predefined_var")
         assert result == "pre-replaced_value-post"
 
     # Test when variable is not found
