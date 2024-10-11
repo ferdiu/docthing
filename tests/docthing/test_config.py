@@ -1,16 +1,8 @@
-import os
 import pytest
 from unittest.mock import patch, mock_open
 from docthing.config import _variable_replace_single, merge_configs, load_config, validate_config, _combine_values, _split_sections_key, _go_into_scope, _get_var_value
 from docthing.constants import PREDEFINED_VARIABLES
 
-@pytest.fixture
-def mock_predefined_variables():
-    # Mocking the PREDEFINED_VARIABLES dictionary for testing
-    # _variable_replace_single
-    return {
-        'predefined-var': lambda config: 'replaced_value'
-    }
 
 def test_combine_values():
     assert _combine_values("a", "b") == "ab"
@@ -48,22 +40,27 @@ def test_get_var_value():
     assert _get_var_value(config, ["section1", "subsection", "key"]) == "value"
 
 
-def test_variable_replace_single(mock_predefined_variables):
+def test_variable_replace_single():
     config = {
         "section1": {
             "my_variable": "actual_value",
             "my_replaceable": "{my_variable}",
             "predefined_var": "pre-{predefined-var}-post",
+            "middle_replace": "pre-{my_variable}-post",
             "nested": {
-                "key": "nested_value",
                 "missing_variable": "{non_existing_variable}",
             },
         },
         "section2": {
             "nested": {
                 "key": "nested_value",
+                "next_to_key": "{key}",
             },
         },
+    }
+
+    mock_predefined_variables = {
+        "predefined-var": lambda config: "replaced_value"
     }
 
     # Test simple replacement
@@ -71,27 +68,31 @@ def test_variable_replace_single(mock_predefined_variables):
         config, "section1.my_replaceable")
     assert result == "actual_value"
 
+    # Test replacement within other values
+    result = _variable_replace_single(config, "section1.middle_replace")
+    assert result == "pre-actual_value-post"
+
     # Test nested variable replacement
     result = _variable_replace_single(config, "section2.nested.key")
     assert result == "nested_value"
 
     # Test predefined variable replacement
-    with patch('docthing.constants.PREDEFINED_VARIABLES', mock_predefined_variables):
+    with patch('docthing.config.PREDEFINED_VARIABLES', mock_predefined_variables):
         result = _variable_replace_single(
-            config, "section1.predefined_var")
+                config, "section1.predefined_var")
         assert result == "pre-replaced_value-post"
 
     # Test when variable is not found
     result = _variable_replace_single(
         config,
-        "section2.nested.missing_variable")
+        "section1.nested.missing_variable")
     assert result == "{non_existing_variable}"
 
     # Test scoped variable replacement
     result = _variable_replace_single(
         config,
-        "section2.another_variable_2")
-    assert result == "another_value_1"
+        "section2.nested.next_to_key")
+    assert result == "nested_value"
 
 
 def test_merge_configs():

@@ -50,7 +50,6 @@ def _go_into_scope(config, path_in_dicts, last_is_key=False):
     Helper function to go into a scope in the configuration.
     '''
     # Split the scope into sections
-    print('path_in_dicts', path_in_dicts)
     if isinstance(path_in_dicts, str):
         sections = path_in_dicts.split('.')
     elif isinstance(path_in_dicts, list):
@@ -63,15 +62,11 @@ def _go_into_scope(config, path_in_dicts, last_is_key=False):
 
     # Traverse the configuration dictionary
     current = config.copy()
-    print('=========')
-    print('path_in_dicts:', path_in_dicts)
     for section in sections:
-        print('->', section)
         if section not in current:
             print(f"Warning: Section {section} not found in config file.")
             break
         current = current[section]
-    print('=========')
     return current
 
 
@@ -126,12 +121,11 @@ def _variable_replace_single(config, host_var_path):
 
         # Extract the variable name
         inj_var_name = remaining_value.split('{')[1].split('}')[0]
-        print('INJECTED VARIABLE:', inj_var_name)
 
         # Preserve key and sections
         inj_var_sections, inj_var_key = _split_sections_key(inj_var_name)
 
-        print('====================')
+        print('INJECTED VARIABLE:', inj_var_name)
         print('PREDEFINED_VARIABLES', PREDEFINED_VARIABLES)
 
         if inj_var_name in PREDEFINED_VARIABLES:
@@ -148,7 +142,8 @@ def _variable_replace_single(config, host_var_path):
                 partial_res = inj_var_scope[inj_var_key]
                 handled = True
             else:
-                print(f"Warning: key {inj_var_key} not found in {inj_var_sections}")
+                print(f"Warning: key {inj_var_key} not found in {
+                      '.'.join(inj_var_sections)}")
         else:
             print('CURRENT SCOPE VARIABLE', host_var_sections)
             # Injected variable name is in the same scope as the host variable
@@ -158,7 +153,10 @@ def _variable_replace_single(config, host_var_path):
                 partial_res = host_var_scope[inj_var_key]
                 handled = True
             else:
-                print(f"Warning: key {inj_var_key} not found in {host_var_sections}")
+                print(f"Warning: key {inj_var_key} not found in {
+                      '.'.join(host_var_sections)} nor it is a predefined variable")
+
+        print()
 
         # In the case of the source or the variable being a list
         #   it is necessary to convert the output to a list
@@ -173,7 +171,7 @@ def _variable_replace_single(config, host_var_path):
         # Remove the part of the value that has been handled
         remaining_value = remaining_value.split('}', 1)[1]
 
-    return res
+    return res + remaining_value
 
 
 def merge_configs(config1, config2):
