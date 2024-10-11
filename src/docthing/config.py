@@ -1,36 +1,121 @@
 
 import os
-from schema import Schema, And, Or, Use, Optional
+from schema import Schema, Or, Optional
 
 from .constants import PREDEFINED_VARIABLES
 from .util import parse_value
 
-########## CONFIGURATION FILE ##########
 
-def _variable_replace_single(config, variable_path_in_config, value):
+# =======================
+# CONFIGURATION FILE
+# =======================
+
+def _combine_values(v1, v2):
     '''
-    Replaces a single variable in the provided configuration with the given value.
+    Helper function to combine two values.
 
-    This function takes a configuration dictionary, a variable path within the configuration, and a value to replace the variable with. It handles the case where the value contains variables that need to be recursively replaced.
+    If they are both strings they will be concatenated.
+    If one of them or both are lists then the combination will be returned as a list.
+    '''
+    res = v1
 
-    The function first checks if the value contains any variables by looking for the `{` and `}` characters. If not, it simply returns the value as is.
+    # v1 is a list and res is a string
+    if isinstance(v2, list) and isinstance(res, str):
+        res = [res + str(item) for item in v2]
+    # bot v1 and res are lists
+    elif isinstance(v2, list) and isinstance(res, list):
+        res = [str(v1_item) + str(v2_item)
+               for v1_item in res for v2_item in v2]
+    # res is a list and v1 is a string
+    elif isinstance(v2, str) and isinstance(res, list):
+        res = [str(item) + str(v2) for item in res]
+    else:  # both strings
+        res = res + v2
 
-    If the value does contain variables, the function extracts the variable name, looks up the value in the configuration, and replaces the variable with the corresponding value. If the variable is not found in the configuration, a warning is printed and the original variable name is left in the string.
+    return res
 
-    The function supports both simple variable names (e.g. `{my_variable}`) and nested variable names (e.g. `{section.my_variable}`). It also handles the case where the value is a list, and replaces each element of the list with the corresponding variable value.
+
+def _split_sections_key(sections_and_key):
+    '''
+    Helper function to split a key into sections and the last key.
+    '''
+    if isinstance(sections_and_key, str):
+        sections_and_key = sections_and_key.split('.')
+
+    return sections_and_key[:-1], sections_and_key[-1]
+
+
+def _go_into_scope(config, path_in_dicts, last_is_key=False):
+    '''
+    Helper function to go into a scope in the configuration.
+    '''
+    # Split the scope into sections
+    print('path_in_dicts', path_in_dicts)
+    if isinstance(path_in_dicts, str):
+        sections = path_in_dicts.split('.')
+    elif isinstance(path_in_dicts, list):
+        sections = path_in_dicts
+    else:
+        raise ValueError("Invalid scope type. Expected str or list.")
+
+    if last_is_key:
+        sections = sections[:-1]
+
+    # Traverse the configuration dictionary
+    current = config.copy()
+    print('=========')
+    print('path_in_dicts:', path_in_dicts)
+    for section in sections:
+        print('->', section)
+        if section not in current:
+            print(f"Warning: Section {section} not found in config file.")
+            break
+        current = current[section]
+    print('=========')
+    return current
+
+
+def _get_var_value(config, sections_and_key):
+    '''
+    Helper function to get the value of a variable in nested dictionaries.
+    '''
+    if isinstance(sections_and_key, str):
+        sections_and_key = sections_and_key.split('.')
+
+    sections, key = _split_sections_key(sections_and_key)
+
+    return _go_into_scope(config, sections)[key]
+
+
+def _variable_replace_single(config, host_var_path):
+    '''
+    Replaces a single variable in the provided configuration.
+
+    This function takes a configuration dictionary and a variable path within the configuration.
+
+    The function supports both simple variable names (e.g. `{my_variable}`) and nested variable
+    names (e.g. `{section.my_variable}`). It also handles the case where the value is a list, and
+    replaces each element of the list with the corresponding variable value.
 
     Args:
         config (dict): The configuration dictionary to use for variable replacement.
-        variable_path_in_config (str): The path to the variable within the configuration dictionary.
-        value (str): The value to replace the variable with.
+        host_var_path_in_config (str): The path to the variable within the configuration dictionary.
 
     Returns:
         str: The value with all variables replaced.
     '''
-    if not isinstance(value, str) or '{' not in value:
-        return value
+    host_var_value = _get_var_value(config, host_var_path)
 
-    remaining_value = value
+    if isinstance(host_var_value, dict):
+        raise ValueError("Variables cannot be nested in the config file.")
+
+    if not isinstance(host_var_value, str) or '{' not in host_var_value:
+        return host_var_value
+
+    host_var_sections, _ = _split_sections_key(host_var_path)
+
+    # Remaining value is the part of the value that has not been handled yet
+    remaining_value = host_var_value
     res = ''
 
     # Check if the value contains any variables
@@ -40,67 +125,54 @@ def _variable_replace_single(config, variable_path_in_config, value):
         partial_res = ''
 
         # Extract the variable name
-        variable_name = remaining_value.split('{')[1].split('}')[0]
+        inj_var_name = remaining_value.split('{')[1].split('}')[0]
+        print('INJECTED VARIABLE:', inj_var_name)
 
-        splitted_path = variable_name.split('.')
         # Preserve key and sections
-        sections = splitted_path[:-1]  # remove the key itself
+        inj_var_sections, inj_var_key = _split_sections_key(inj_var_name)
 
-        # Check if the variable is predefined
-        if variable_name in PREDEFINED_VARIABLES:
-            partial_res = PREDEFINED_VARIABLES[variable_name](config)
+        print('====================')
+        print('PREDEFINED_VARIABLES', PREDEFINED_VARIABLES)
+
+        if inj_var_name in PREDEFINED_VARIABLES:
+            print('PREDEFINED')
+            # Injected variable name is a predefined variable
+            partial_res = PREDEFINED_VARIABLES[inj_var_name](config)
             handled = True
+        elif '.' in inj_var_name:
+            print('ABSOLUTE VARIABLE')
+            # Injected variable name is an absolute path to a variable
+            inj_var_scope = _go_into_scope(config, inj_var_sections)
 
-        if not handled:
-            if '.' in variable_name:
-                # Traverse the configuration dictionary
-                current = config.copy()
-                for section in sections:
-                    if section not in current:
-                        print(f"Warning: Section {
-                              section} not found in config file.")
-                        break
-                    current = current[section]
-
-                if variable_name in current:
-                    # Get the value for the last section
-                    current_value = current[variable_name]
-                    # Replace the variable with the value
-                    partial_res = current_value
-                    handled = True
+            if inj_var_key in inj_var_scope:
+                partial_res = inj_var_scope[inj_var_key]
+                handled = True
             else:
-                # Traverse the configuration dictionary
-                current_variable_scope = config.copy()
-                for section in variable_path_in_config.split('.')[:-1]:
-                    if section not in current_variable_scope:
-                        print(f"Warning: Section {
-                              section} not found in config file.")
-                        break
-                    current_variable_scope = current_variable_scope[section]
-                if variable_name in current_variable_scope:
-                    partial_res = current_variable_scope[variable_name]
-                    handled = True
-
-        if handled:
-            # partial_res is a list and res is a string
-            if isinstance(partial_res, list) and isinstance(res, str):
-                res = [res + str(item) for item in partial_res]
-            # bot partial_res and res are lists
-            elif isinstance(partial_res, list) and isinstance(res, list):
-                res = [str(res_item) + str(pres_item)
-                       for res_item in res for pres_item in partial_res]
-            # res is a list and partial_res is a string
-            elif isinstance(partial_res, str) and isinstance(res, list):
-                res = [str(item) + str(partial_res) for item in res]
-            else:  # both strings
-                res = res + partial_res
+                print(f"Warning: key {inj_var_key} not found in {inj_var_sections}")
         else:
-            print(f"Warning: Variable {
-                  variable_name} not found in config file.")
-            # reappend the variable name into the string
-            res = res + '{' + variable_name + '}'
+            print('CURRENT SCOPE VARIABLE', host_var_sections)
+            # Injected variable name is in the same scope as the host variable
+            host_var_scope = _go_into_scope(config, host_var_sections)
 
-        remaining_value = remaining_value.split('}', 1)[0]
+            if inj_var_key in host_var_scope:
+                partial_res = host_var_scope[inj_var_key]
+                handled = True
+            else:
+                print(f"Warning: key {inj_var_key} not found in {host_var_sections}")
+
+        # In the case of the source or the variable being a list
+        #   it is necessary to convert the output to a list
+        #   providing all possible combinations
+        if handled:
+            res = _combine_values(res, partial_res)
+        else:
+            print(f"Warning: Variable {inj_var_name} not found in config file.")
+            # fallback to original string
+            res = res + '{' + inj_var_name + '}'
+
+        # Remove the part of the value that has been handled
+        remaining_value = remaining_value.split('}', 1)[1]
+
     return res
 
 
@@ -154,11 +226,13 @@ def load_config(config_path, command_line_config):
                     if len(section.split("|", 1)) == 2:
                         # section with subsections
                         # extract the subsections...
-                        subsections = [ss.strip()
-                                       for ss in section.split("|", 1)[1].split("|")]
+                        subsections = [
+                            ss.strip() for ss in section.split(
+                                "|", 1)[1].split("|")]
                         # ... and the section
                         section = section.split("|", 1)[0]
-                        # check main section was already initialized otherwise initialize it
+                        # check main section was already initialized otherwise
+                        # initialize it
                         if section not in config:
                             config[section] = {}
                         # initialize them empty
@@ -166,7 +240,8 @@ def load_config(config_path, command_line_config):
                             if ss not in config[section]:
                                 config[section][ss] = {}
                     else:
-                        # if it was a normal section reset subesction and initialize it
+                        # if it was a normal section reset subesction and
+                        # initialize it
                         subsections = []
                         if section not in config:
                             config[section] = {}
@@ -174,36 +249,45 @@ def load_config(config_path, command_line_config):
                 else:
                     if '=' not in line:
                         print(f"Warning: invalid line ({
-                              i_line+1}) ignored: {line}")
+                              i_line + 1}) ignored: {line}")
                         continue
                     # finally extract key-value pair
                     key, value = line.split('=', 1)
-                    interpreted_value = parse_value(value.strip())
                     if len(subsections) > 0:
                         for ss in subsections:
-                            if key.strip() not in config[section][ss]: # do not override command line config
+                            if key.strip() not in config[section][ss]:
+                                # do not override command line config
+                                config[section][ss][key.strip()] = parse_value(value.strip())
                                 config[section][ss][key.strip()] = _variable_replace_single(
-                                    config, f'{section}.{ss}.{key.strip()}', interpreted_value)
+                                    config, f'{section}.{ss}.{key.strip()}')
                     else:
-                        if key.strip() not in config[section]: # do not override command line config
+                        if key.strip(
+                        ) not in config[section]:
+                            # do not override command line config
+                            config[section][key.strip()] = parse_value(value.strip())
                             config[section][key.strip()] = _variable_replace_single(
-                                config, f'{section}.{key.strip()}', interpreted_value)
+                                config, f'{section}.{key.strip()}')
     else:
         print(f'Warning: file {config_path} does not exist')
 
     return config
 
 
-######## VALIDATION ########
+# =======================
+# VALIDATION
+# =======================
 
 # Defining the schema
 config_schema = Schema({
     # Main section schema
     'main': {
         'index_file': str,                       # index_file is required
-        Optional('extensions'): Or(str, list),   # extensions is a list of string or a string
-        Optional('iexts'): Or(str, list),        # ignores extensions is a list of string or a string
-        Optional('meta'): Or(str, list)          # meta values is a list of string or a string
+        # extensions is a list of string or a string
+        Optional('extensions'): Or(str, list),
+        # ignores extensions is a list of string or a string
+        Optional('iexts'): Or(str, list),
+        # meta values is a list of string or a string
+        Optional('meta'): Or(str, list)
     },
 
     # Output section schema
@@ -217,17 +301,20 @@ config_schema = Schema({
         'begin_doc': str,                      # begin_doc is a string
         'end_doc': str,                        # end_doc is a string
         'doc_level': int,                      # doc_level is an int
-        Optional('allow_sl_comments'): bool,   # boolean for single-line comments
+        # boolean for single-line comments
+        Optional('allow_sl_comments'): bool,
         Optional('peek_lines'): int,           # peek_lines must be an integer
         # Dynamic keys (e.g., language-specific configs like 'parser|py')
         Optional(str): {
             'begin_ml_comment': str,               # multiline comment start as string
             'end_ml_comment': str,                 # multiline comment end as string
             Optional('allow_sl_comments'): bool,   # boolean for sl comments
-            Optional('peek_lines'): int,           # peek_lines must be an integer
+            # peek_lines must be an integer
+            Optional('peek_lines'): int,
         }
     }
 })
+
 
 def validate_config(config):
     '''

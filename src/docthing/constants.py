@@ -62,7 +62,8 @@ DEFAULT_CONFIG = {
         'rs': _c_like_languages_parser_config,     # Rust
         'rlib': _c_like_languages_parser_config,   # Rust library
 
-        # TODO: add more default configuration options for most common languages here
+        # TODO: add more default configuration options for most common
+        # languages here
     },
 }
 
@@ -71,7 +72,8 @@ def index_file_dir(config):
     """
     Determine the directory containing the index file based on the configuration.
 
-    If the `main` section or `index_file` option is not defined in the configuration, a default value of `{index-file-dir}` is returned.
+    If the `main` section or `index_file` option is not defined in the configuration,
+    a default value of `{index-file-dir}` is returned.
 
         Args:
             config (dict): The configuration dictionary.
@@ -79,10 +81,10 @@ def index_file_dir(config):
         Returns:
             str: The absolute path to the directory containing the index file.
     """
-    if not 'main' in config:
+    if 'main' not in config:
         print('Warning: using variable index-file-dir before defining `main` section in config file')
         return '{index-file-dir}'
-    if not 'index_file' in config['main']:
+    if 'index_file' not in config['main']:
         print('Warning: using variable index-file-dir before defining `index_file` in `main` section in config file')
         return '{index-file-dir}'
     res = os.path.abspath(os.path.dirname(config['main']['index_file']))

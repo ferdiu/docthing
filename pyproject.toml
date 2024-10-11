@@ -24,3 +24,11 @@ Issues = "https://github.com/ferdiu/docthing/issues"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

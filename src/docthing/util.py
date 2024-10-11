@@ -4,16 +4,20 @@ END FILE DOCUMENTATION '''
 
 import os
 
-########## COMMON UTILS ##########
 
+# =======================
+# COMMON UTILS
+# =======================
 
 def mkdir_silent(output_dir):
     '''
     Creates the specified output directory if it doesn't already exist.
 
-    This function checks if the given `output_dir` path exists, and if not, it creates the directory and any necessary parent directories using `os.makedirs()`.
+    This function checks if the given `output_dir` path exists, and if not, it creates
+    the directory and any necessary parent directories using `os.makedirs()`.
 
-    This is a utility function that can be used to ensure that an output directory is available before writing files to it.
+    This is a utility function that can be used to ensure that an output directory is
+    available before writing files to it.
 
     Args:
         output_dir (str): The path of the output directory to create.
@@ -55,5 +59,3 @@ def parse_value(value_str):
             return float(value_str)
         except ValueError:
             return value_str
-
-

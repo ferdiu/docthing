@@ -14,16 +14,24 @@ from docthing.plugins.manager import PluginManager
 from docthing.plugins.meta_interpreter.plantuml import PlantUMLInterpreter
 
 
-# Main function to handle command-line arguments and execute the documentation generation
+# Main function to handle command-line arguments and execute the
+# documentation generation
 def main():
     parser = argparse.ArgumentParser(
         description="Generate documentation from project index file.")
     parser.add_argument(
-        'index_file', help="Index file or project directory containing docthing.jsonc", nargs='?', default=os.getcwd())
+        'index_file',
+        help="Index file or project directory containing docthing.jsonc",
+        nargs='?',
+        default=os.getcwd())
     parser.add_argument(
-        '--config', help="Relative to index directory path to configuration file", default=DEFAULT_CONFIG_FILE)
+        '--config',
+        help="Relative to index directory path to configuration file",
+        default=DEFAULT_CONFIG_FILE)
     parser.add_argument(
-        '--outdir', help="Output directory for documentation", default=DEFAULT_OUTPUT_DIR)
+        '--outdir',
+        help="Output directory for documentation",
+        default=DEFAULT_OUTPUT_DIR)
 
     args = parser.parse_args()
 
@@ -51,7 +59,9 @@ def main():
     config_path = args.config
     config = DEFAULT_CONFIG.copy()
     if os.path.isfile(config_path):
-        config = merge_configs(config, load_config(config_path, command_line_config))
+        config = merge_configs(
+            config, load_config(
+                config_path, command_line_config))
 
     validate_config(config)
 
@@ -62,14 +72,24 @@ def main():
     # Initialize the plugin manager for MetaInterpreters
     interpreter_manager = PluginManager(
         'meta-interpreter', [PlantUMLInterpreter({})])
-    interpreter_manager.load_plugins(config['main']['meta'] if 'meta' in config['main'] else [])
+    interpreter_manager.load_plugins(
+        config['main']['meta'] if 'meta' in config['main'] else [])
 
     # Initialize the plugin manager for Exporters
     exporter_manager = PluginManager('exporter', [])
     exporter_manager.load_plugins(config['output']['type'])
 
+    # extract extensions and ignored extensions
+    config['output']['extensions'] = config['output']['extensions'] if 'extensions' in config['output']['type'] else []
+    config['output']['iexts'] = config['output']['iexts'] if 'iexts' in config['output']['type'] else []
+
     # Process the index file and generate the documentation
-    blob = DocumentationBlob(index_file, config)
+    blob = DocumentationBlob(
+        index_file,
+        config['parser'],
+        config['output']['extensions'],
+        config['output']['iexts'])
+    print(blob)
 
 
 if __name__ == "__main__":

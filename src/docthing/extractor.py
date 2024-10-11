@@ -4,41 +4,53 @@ import os
 from .util import parse_value
 
 
-####### PUBLIC #######
+# =======================
+# PUBLIC
+# =======================
 
 def extract_documentation(path_to_file, parser_config):
     """
-    Extracts the documentation from the specified file path using the provided parser configuration.
+    Extracts the documentation from the specified file path using the provided parser
+    configuration.
 
         Args:
             path_to_file (str): The path to the file to extract documentation from.
-            parser_config (dict): The parser configuration dictionary to use for extracting the documentation.
+            parser_config (dict): The parser configuration dictionary to use for
+            extracting the documentation.
 
         Returns:
-            str or None: The extracted documentation, or None if no documentation was found.
+            str or None: The extracted documentation, or None if no documentation
+            was found.
     """
     res, options = _peek_n_read_if_match(path_to_file, parser_config)
 
     if res is None:
-        print('Warning: no documentation found correspondig to path ' + path_to_file)
+        print(
+            'Warning: no documentation found correspondig to path ' +
+            path_to_file)
 
     return res
 
 
-####### REGULAR EXPRESSIONS #######
+# =======================
+# REGULAR EXPRESSIONS
+# =======================
 
 def _regex_begin_documentation(ext, parser_config):
     '''
-    Generates a regular expression to match the end of a documentation block based on the provided parser configuration.
+    Generates a regular expression to match the end of a documentation block based
+    on the provided parser configuration.
 
         Args:
             ext (str): The file extension to use for the parser configuration.
             parser_config (dict): The parser configuration dictionary.
 
         Returns:
-            re.Pattern: A compiled regular expression pattern that matches the end of a documentation block, or None if no parser configuration is found for the given extension.
+            re.Pattern: A compiled regular expression pattern that matches the end
+            of a documentation block, or None if no parser configuration is found
+            for the given extension.
     '''
-    if not ext in parser_config:
+    if ext not in parser_config:
         print('Warning: no parser configuration for extension ' + ext)
         return None
 
@@ -53,16 +65,19 @@ def _regex_begin_documentation(ext, parser_config):
 
 def _regex_end_documentation(ext, parser_config):
     '''
-    Generates a regular expression to match the end of a documentation block based on the provided parser configuration.
+    Generates a regular expression to match the end of a documentation block based
+    on the provided parser configuration.
 
         Args:
             ext (str): The file extension to use for the parser configuration.
             parser_config (dict): The parser configuration dictionary.
 
         Returns:
-            re.Pattern: A compiled regular expression pattern that matches the end of a documentation block, or None if no parser configuration is found for the given extension.
+            re.Pattern: A compiled regular expression pattern that matches the end
+            of a documentation block, or None if no parser configuration is found
+            for the given extension.
     '''
-    if not ext in parser_config:
+    if ext not in parser_config:
         print('Warning: no parser configuration for extension ' + ext)
         return None
 
@@ -75,7 +90,9 @@ def _regex_end_documentation(ext, parser_config):
         return re.compile(res)
 
 
-####### OPTIONS #######
+# =======================
+# OPTIONS
+# =======================
 
 def _parse_options(line):
     '''
@@ -85,7 +102,8 @@ def _parse_options(line):
         line (str): The line containing the options string.
 
     Returns:
-        dict: A dictionary of parsed options, where the keys are the option names and the values are the parsed option values.
+        dict: A dictionary of parsed options, where the keys are the option names and
+        the values are the parsed option values.
     '''
     res = {}
 
@@ -108,19 +126,23 @@ def _parse_options(line):
     return res
 
 
-####### IO #######
+# =======================
+# IO
+# =======================
 
-# Peek the source code file to check presence of a string and read until the end of the documentation if so
 def _peek_n_read_if_match(path_to_file, parser_config):
     """
-    Peeks the source code file to check for the presence of a documentation string and reads until the end of the documentation if found.
+    Peeks the source code file to check for the presence of a documentation string
+    and reads until the end of the documentation if found.
 
         Args:
             path_to_file (str): The path to the file to be processed.
             parser_config (dict): The parser configuration dictionary.
 
         Returns:
-            (list[str], options) or None: A list of strings containing the lines of the documentation block and extracted options in a tuple, or None if no documentation block is found.
+            (list[str], options) or None: A list of strings containing the lines of
+            the documentation block and extracted options in a tuple, or None if no
+            documentation block is found.
     """
     ext = os.path.splitext(path_to_file)[1].replace('.', '')
     begin_regex = _regex_begin_documentation(ext, parser_config)
@@ -148,13 +170,16 @@ def _peek_n_read_if_match(path_to_file, parser_config):
         # Read until the end of the documentation
         while True:
             try:
-                l = next(input_file)
-                document_lines.append(l)
-                if re.search(end_regex, l):
+                line = next(input_file)
+                document_lines.append(line)
+                if re.search(end_regex, line):
                     break
                 last_line_index += 1
             except StopIteration:
-                print('Warning: reached end of file before end of documentation: this usually means that the documentation is not properly closed or the entire file contains only documentation')
+                print(
+                    '''Warning: reached end of file before end of documentation:
+                      this usually means that the documentation is not properly closed
+                      or the entire file contains only documentation''')
                 break
 
         return document_lines[first_line_index:last_line_index], options

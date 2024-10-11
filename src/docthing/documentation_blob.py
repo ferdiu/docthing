@@ -13,92 +13,57 @@ it to the constructor of the `Exporter` implementation.
 END FILE DOCUMENTATION '''
 
 import json
-from abc import ABC, abstractmethod
 
 from .index import process_index
+from .tree import Tree, TreeNode
 
 
-class TreeNode(ABC):
-    def __init__(self, parent=None, children=None):
-        self.parent = parent
+class DocumentationNode(TreeNode):
+    '''
+    A node in the documentation tree, representing a chapter, section, file, directory,
+    or file list.
+
+    The `DocumentationNode` class represents a node in the documentation tree, which can be
+    a chapter, section, file, directory, or file list. Each node has a title and either
+    content or a list of child nodes.
+
+    Args:
+        title (str): The title of the node.
+        content (str, optional): The content of the node, if it is a file.
+        children (list, optional): A list of child nodes, if the node is a chapter, section,
+        directory, or file list.
+
+    Raises:
+        ValueError: If both `content` and `children` are provided, or if neither is provided.
+    '''
+
+    def __init__(self, title, content=None, children=None):
+        '''
+        Initialize a new DocumentationNode.
+        Args:
+            title (str): The title of the node.
+            content (str, optional): The content of the node, if it is a file.
+            children (list, optional): A list of child nodes, if the node is a chapter,
+            section, directory, or file list.
+
+        Raises:
+            ValueError: If both `content` and `children` are provided, or if neither is
+            provided.
+        '''
+        if content is not None and children is not None or content is None and children is None:
+            raise ValueError(
+                "Either content or children must be provided, but not both.")
+
+        self.title = title
+        self.content = content
         self.children = children if children is not None else []
 
-    def is_root(self):
-        return self.parent is None
+    def get_content(self):
+        '''
+        Get the content of the node (str).
+        '''
+        return self.content
 
-    def get_parent(self):
-        return self.parent
-
-    def set_parent(self, parent):
-        if parent is None and self.parent is not None:
-            self.parent.children.remove(self)
-        elif parent is not None and self.parent is not None:
-            self.parent.children.remove(self)
-        self.parent = parent
-
-    def is_leaf(self):
-        return len(self.children) == 0
-
-    def add_child(self, child):
-        if child.get_parent() is not None:
-            child.get_parent().remove_child(child)
-        child.set_parent(self)
-        self.children.append(child)
-
-    def get_children(self):
-        return self.children
-
-    def get_child(self, index):
-        if  index < 0 or index >= len(self.children):
-            raise IndexError("Index out of range")
-        return self.children[index]
-
-    def remove_child(self, index):
-        if isinstance(index, int):
-            if index < 0 or index >= len(self.children):
-                raise IndexError("Index out of range")
-            child = self.children[index]
-            self.children.remove(child)
-            child.set_parent(None)
-            return child
-        elif isinstance(index, TreeNode):
-            if index not in self.children:
-                raise ValueError("Child not found in the tree")
-            child = index
-            self.children.remove(child)
-            child.set_parent(None)
-            return child
-        else:
-            raise TypeError("Invalid index type")
-
-
-class Tree(TreeNode):
-    def __init__(self, root):
-        self.root = root
-
-    def get_root(self):
-        return self.root
-
-    def is_root(self):
-        return True
-
-    def get_parent(self):
-        return None
-
-    def set_parent(self, parent):
-        return self.get_rooot().set_parent(parent)
-
-    def is_leaf(self):
-        return self.get_root().is_leaf()
-
-    def add_child(self, child):
-        return self.get_root().add_child(child)
-
-    def get_children(self):
-        return self.get_root().get_children()
-
-    def get_child(self, index):
-        return self.get_root().get_child(index)
 
 class DocumentationBlob(Tree):
     '''
@@ -107,7 +72,12 @@ class DocumentationBlob(Tree):
         It can be used to generate documentation in various formats.
     '''
 
-    def __init__(self, index_file, parser_config, extensions, ignored_extensions):
+    def __init__(
+            self,
+            index_file,
+            parser_config,
+            extensions,
+            ignored_extensions):
         self.parser_config = parser_config
         self.extensions = extensions
         self.ignored_extensions = ignored_extensions
@@ -115,18 +85,66 @@ class DocumentationBlob(Tree):
         with open(index_file, 'r') as f:
             self.index_file = json.load(f)
 
-        super(self._generate_tree_from_index(self.index_file).get_root())
+        super().__init__(self._generate_tree_from_index(self.index_file).get_root())
 
-    def _generate_tree_from_index(index_file_json):
-        # TODO: implement this (where the magic happens)
-        return Tree()
+    def _generate_tree_from_index(self, index_file_json):
+        # It is ok to iterate over dict keys since python 3.6
+        # see:
+        # https://docs.python.org/3/whatsnew/3.6.html#whatsnew36-compactdict
+        return Tree(self._generate_root(self, index_file_json))
 
+    def _generate_root(self, index_file_json):
+        if 'main-title' not in index_file_json:
+            raise ValueError("Index file must contain 'main-title'")
 
-class DocumentationNode(TreeNode):
-    def __init__(self, title, content, children=None):
-        self.title = title
-        self.content = content
-        self.children = children if children is not None else []
+        res = DocumentationNode(index_file_json['main-title'])
+
+        if 'intro' not in index_file_json:
+            print(
+                '''Warning: index file does not contain 'intro': this is discouraged: it is
+                  important to give the user a brief introduction to the project''')
+        else:
+            res.add_child(self._generate_leaf(index_file_json['intro']))
+        if 'quick' not in index_file_json:
+            print(
+                '''Warning: index file does not contain 'quick': this is discouraged: it is
+                  important to give the user a grasp of the usage of the project''')
+        else:
+            res.add_child(self._generate_leaf(index_file_json['quick']))
+
+        return res
+
+    def _generate_internal_node(self, title, content_file_path):
+        return DocumentationNode(title, )
+
+    def _generate_leaf(self):
+        pass
+
+    def _generate_node(self, node):
+        if node.get('type') == 'chapter':
+            return DocumentationNode(
+                node['title'], self._generate_tree_from_index(
+                    node['content']).get_root())
+        elif node.get('type') == 'section':
+            return DocumentationNode(
+                node['title'], self._generate_tree_from_index(
+                    node['content']).get_root())
+        elif node.get('type') == 'file':
+            return DocumentationNode(
+                node['title'], self._generate_tree_from_index(
+                    node['content']).get_root())
+        elif node.get('type') == 'directory':
+            return DocumentationNode(
+                node['title'], self._generate_tree_from_index(
+                    node['content']).get_root())
+        elif node.get('type') == 'file_list':
+            return DocumentationNode(
+                node['title'], self._generate_tree_from_index(
+                    node['content']).get_root())
+        elif node.get('type') == 'file_list_item':
+            return DocumentationNode(
+                node['title'], self._generate_tree_from_index(
+                    node['content']).get_root())
 
 
 # array
