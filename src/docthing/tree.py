@@ -1,5 +1,5 @@
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class TreeNode(ABC):
@@ -42,8 +42,13 @@ class TreeNode(ABC):
         '''
         Set the parent node of the current node.
         '''
-        if self.parent is not None:
+        if self.parent is not None and self.parent != parent:
             self.parent.remove_child(self)
+
+        # Prevent self-cycling
+        if self == parent:
+            raise ValueError('A node cannot be its own parent')
+
         self.parent = parent
 
     def is_leaf(self):
@@ -56,6 +61,10 @@ class TreeNode(ABC):
         '''
         Add a child node to the current node.
         '''
+        # Prevent self-cycling
+        if self == child:
+            raise ValueError('A node cannot be its own child')
+
         child.set_parent(self)
         self.children.append(child)
 
@@ -82,18 +91,16 @@ class TreeNode(ABC):
             if index < 0 or index >= len(self.children):
                 raise IndexError('Index out of range')
             child = self.children[index]
-            self.children.remove(child)
-            child.set_parent(None)
-            return child
         elif isinstance(index, TreeNode):
             if index not in self.children:
                 raise ValueError('Child not found in the tree')
             child = index
-            self.children.remove(child)
-            child.set_parent(None)
-            return child
         else:
             raise TypeError('Invalid index type')
+
+        self.children.remove(child)
+        child.parent = None  # Set the parent to None without triggering `remove_child` again
+        return child
 
     def get_depth(self):
         '''
@@ -142,6 +149,38 @@ class TreeNode(ABC):
             for child in self.children:
                 leaves.extend(child.get_leaves())
             return leaves
+
+    def to_string(self, prevprefix='', position='first'):
+        if position not in ['first', 'middle', 'last']:
+            raise ValueError('Invalid position')
+
+        # Node representation
+        prefix = ''
+        if position == 'last':
+            prefix += '└── '
+        elif position == 'middle':
+            prefix += '├── '
+
+        result = prevprefix + prefix + str(self) + '\n'
+
+        child_prevprefix = prevprefix
+        if position == 'first':
+            child_prevprefix += ''
+        elif position == 'last':
+            child_prevprefix += '    '
+        elif position == 'middle':
+            child_prevprefix += '│   '
+
+        # Modify the prefix for child nodes │
+        for i, child in enumerate(self.children):
+            result += child.to_string(child_prevprefix,
+                                      'last' if i == len(self.children) - 1 else 'middle')
+
+        return result
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
 
 
 class Tree(TreeNode):
@@ -204,3 +243,9 @@ class Tree(TreeNode):
 
     def get_leaves(self):
         return self.get_root().get_leaves()
+
+    def to_string(self, prefix=''):
+        return self.get_root().to_string()
+
+    def __str__(self):
+        return self.get_root().to_string()

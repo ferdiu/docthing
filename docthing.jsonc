@@ -1,4 +1,5 @@
 {
+    "main-title": "docthing",
     "quick": "README.md",
     "Chapter 1: docthing": "src/docthing.py",
     "Chapter 2: configuration": "CONFIG-FILE.md",

@@ -125,16 +125,11 @@ def _variable_replace_single(config, host_var_path):
         # Preserve key and sections
         inj_var_sections, inj_var_key = _split_sections_key(inj_var_name)
 
-        print('INJECTED VARIABLE:', inj_var_name)
-        print('PREDEFINED_VARIABLES', PREDEFINED_VARIABLES)
-
         if inj_var_name in PREDEFINED_VARIABLES:
-            print('PREDEFINED')
             # Injected variable name is a predefined variable
             partial_res = PREDEFINED_VARIABLES[inj_var_name](config)
             handled = True
         elif '.' in inj_var_name:
-            print('ABSOLUTE VARIABLE')
             # Injected variable name is an absolute path to a variable
             inj_var_scope = _go_into_scope(config, inj_var_sections)
 
@@ -142,10 +137,9 @@ def _variable_replace_single(config, host_var_path):
                 partial_res = inj_var_scope[inj_var_key]
                 handled = True
             else:
-                print(f'''Warning: key {inj_var_key} not found
-                      in {'.'.join(inj_var_sections)}''')
+                print(f'Warning: key {inj_var_key} not found ' +
+                      f'in {'.'.join(inj_var_sections)}')
         else:
-            print('CURRENT SCOPE VARIABLE', host_var_sections)
             # Injected variable name is in the same scope as the host variable
             host_var_scope = _go_into_scope(config, host_var_sections)
 
@@ -153,10 +147,8 @@ def _variable_replace_single(config, host_var_path):
                 partial_res = host_var_scope[inj_var_key]
                 handled = True
             else:
-                print(f'''Warning: key {inj_var_key} not foundin
-                      {'.'.join(host_var_sections)} nor it is a predefined variable''')
-
-        print()
+                print(f'Warning: key {inj_var_key} not found in ' +
+                      f'{'.'.join(host_var_sections)} nor it is a predefined variable')
 
         # In the case of the source or the variable being a list
         #   it is necessary to convert the output to a list
@@ -309,6 +301,7 @@ def load_config(config_path, command_line_config={}):
 
             _set_in_config(config, curr_section, curr_subsections,
                            key, parse_value(value))
+            continue
 
         # Found line not part of the syntax
         print(f'Warning: invalid line ({i_line + 1}) ignored: {line}')

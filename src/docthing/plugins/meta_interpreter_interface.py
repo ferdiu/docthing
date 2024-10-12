@@ -39,7 +39,8 @@ class MetaInterpreter(PluginInterface):
         '''
         if not self.are_dependencies_available():
             raise Exception(
-                f'''Dependencies for the {self.get_name()} interpreter are not available.''')
+                f'''Dependencies for the {
+                    self.get_name()} interpreter are not available.''')
 
     def _unload(self):
         '''

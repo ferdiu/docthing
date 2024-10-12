@@ -15,7 +15,6 @@ from .util import mkdir_silent
 # PUBLIC
 # =======================
 
-# Function to process the index file and create the documentation
 def process_index(index_file, output_dir, config):
     '''
     Processes the index file and creates the documentation for the project.
