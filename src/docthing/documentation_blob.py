@@ -14,7 +14,7 @@ END FILE DOCUMENTATION '''
 
 import json
 
-from .index import process_index
+# from .index import process_index
 from .tree import Tree, TreeNode
 
 

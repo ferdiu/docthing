@@ -32,26 +32,33 @@ class PluginManager:
             else:
                 raise Exception('Plugins must be a list of plugin names.')
 
-        if os.path.isdir(self.plugin_dir):
-            for filename in os.listdir(self.plugin_dir):
-                if filename.endswith('.py'):
-                    self._load_plugin_from_file(
-                        os.path.join(self.plugin_dir, filename))
+        # Load all plugins from the plugin directory
+        for f in self._get_plugins_from_plugin_dir():
+            self._load_from_file(os.path.join(self.plugin_dir, f))
 
         if plugins == 'all':
             for plugin in self.plugins:
                 plugin.load()
-        else:
-            available_plugins = [p.get_name() for p in self.plugins]
-            unavailable_plugins = [
-                p for p in plugins if p not in available_plugins]
-            if len(unavailable_plugins) > 0:
-                print(
-                    f'Warning: some plugins were not found: {
-                        ', '.join(unavailable_plugins)}')
-            for plugin in self.plugins:
-                if plugin.get_name() in plugins:
-                    plugin.load()
+            return
+
+        avail_plugins = [p.get_name() for p in self.plugins]
+        unavailable_plugins = [p for p in plugins if p not in avail_plugins]
+        if len(unavailable_plugins) > 0:
+            print(f'Warning: some plugins were not found: {
+                  ', '.join(unavailable_plugins)}')
+
+        # Load the specified plugins
+        for plugin in self.plugins:
+            if plugin.get_name() in plugins:
+                plugin.load()
+
+    def _get_plugins_from_plugin_dir(self):
+        res = []
+        if os.path.isdir(self.plugin_dir):
+            for filename in os.listdir(self.plugin_dir):
+                if filename.endswith('.py'):
+                    res.push(filename)
+        return res
 
     def unload_plugins(self):
         '''
@@ -60,7 +67,7 @@ class PluginManager:
         for plugin in self.plugins:
             plugin.unload()
 
-    def _load_plugin_from_file(self, filepath):
+    def _load_from_file(self, filepath):
         '''
         Load and verify a single plugin.
         '''

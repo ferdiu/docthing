@@ -92,12 +92,12 @@ def _variable_replace_single(config, host_var_path):
     names (e.g. `{section.my_variable}`). It also handles the case where the value is a list, and
     replaces each element of the list with the corresponding variable value.
 
-    Args:
-        config (dict): The configuration dictionary to use for variable replacement.
-        host_var_path_in_config (str): The path to the variable within the configuration dictionary.
+        Args:
+            config (dict): The configuration dictionary to use for variable replacement.
+            host_var_path_in_config (str): The path to the variable within the configuration dictionary.
 
-    Returns:
-        str: The value with all variables replaced.
+        Returns:
+            str: The value with all variables replaced.
     '''
     host_var_value = _get_var_value(config, host_var_path)
 
@@ -179,12 +179,12 @@ def merge_configs(config1, config2):
     '''
     Merges two configuration dictionaries, recursively handling nested dictionaries.
 
-    Args:
-        config1 (dict): The first configuration dictionary to merge.
-        config2 (dict): The second configuration dictionary to merge.
+        Args:
+            config1 (dict): The first configuration dictionary to merge.
+            config2 (dict): The second configuration dictionary to merge.
 
-    Returns:
-        dict: A new dictionary that is the result of merging the two input configurations.
+        Returns:
+            dict: A new dictionary that is the result of merging the two input configurations.
     '''
     merged_config = config1.copy()
     for key, value in config2.items():
@@ -198,78 +198,121 @@ def merge_configs(config1, config2):
     return merged_config
 
 
-def load_config(config_path, command_line_config):
+def _parse_section_tag(line):
+    '''
+    Parses a section tag from a line in a configuration file.
+
+        Args:
+            line (str): The line to parse.
+
+        Returns:
+            tuple: A tuple containing the section name and a list of subsections.
+    '''
+    section_name = line.strip().strip('[').strip(']').strip()
+
+    if '|' not in section_name:
+        return section_name, []
+    else:
+        section_name, remaining_line = section_name.split('|', 1)
+        return section_name, remaining_line.split('|')
+
+
+def _parse_key_value_pair(line):
+    '''
+    Parses a key-value pair from a line in a configuration file.
+
+        Args:
+            line (str): The line to parse.
+        Returns:
+            tuple: A tuple containing the key and value.
+    '''
+    return [p.strip() for p in line.split('=', 1)]
+
+
+def _set_in_config(config, section, subsections, key, value, override=False):
+    '''
+    Sets a value in a configuration dictionary, creating nested dictionaries as needed.
+    '''
+    # No subsections
+    if not subsections:
+        if not override and key in config[section]:
+            return
+
+        config[section][key] = value
+        config[section][key] = _variable_replace_single(
+            config, f'{section}.{key}')
+        return
+
+    # Single subsection
+    if isinstance(subsections, str):
+        if not override and key in config[section][subsections]:
+            return
+
+        config[section][subsections][key] = value
+        config[section][subsections][key] = _variable_replace_single(
+            config, f'{section}.{subsections}.{key}')
+        return
+
+    # Multiple subsections
+    for subsection in subsections:
+        _set_in_config(config, section, subsection, key, value)
+
+
+def load_config(config_path, command_line_config={}):
     '''
     Loads a configuration from the specified file path.
 
-    Args:
-        config_path (str): The path to the configuration file.
+        Args:
+            config_path (str): The path to the configuration file.
+            command_line_config (dict): The command line configuration
+            to merge with the loaded configuration.
 
-    Returns:
-        dict: The loaded configuration as a dictionary.
+        Returns:
+            dict: The loaded configuration as a dictionary.
     '''
+
     config = command_line_config.copy()
-    section = None
-    subsections = []
-    if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
-            lines = f.readlines()
-            for i_line, line in enumerate(lines):
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    # Skip empty lines and comments
-                    continue
-                if line.startswith("[") and line.endswith("]"):
-                    # Handle sections
-                    section = line.strip("[]").strip()
-                    if len(section.split("|", 1)) == 2:
-                        # section with subsections
-                        # extract the subsections...
-                        subsections = [
-                            ss.strip() for ss in section.split(
-                                "|", 1)[1].split("|")]
-                        # ... and the section
-                        section = section.split("|", 1)[0]
-                        # check main section was already initialized otherwise
-                        # initialize it
-                        if section not in config:
-                            config[section] = {}
-                        # initialize them empty
-                        for ss in subsections:
-                            if ss not in config[section]:
-                                config[section][ss] = {}
-                    else:
-                        # if it was a normal section reset subesction and
-                        # initialize it
-                        subsections = []
-                        if section not in config:
-                            config[section] = {}
-                    continue
-                else:
-                    if '=' not in line:
-                        print(f"Warning: invalid line ({
-                              i_line + 1}) ignored: {line}")
-                        continue
-                    # finally extract key-value pair
-                    key, value = line.split('=', 1)
-                    if len(subsections) > 0:
-                        for ss in subsections:
-                            if key.strip() not in config[section][ss]:
-                                # do not override command line config
-                                config[section][ss][key.strip()] = parse_value(
-                                    value.strip())
-                                config[section][ss][key.strip()] = _variable_replace_single(
-                                    config, f'{section}.{ss}.{key.strip()}')
-                    else:
-                        if key.strip(
-                        ) not in config[section]:
-                            # do not override command line config
-                            config[section][key.strip()] = parse_value(
-                                value.strip())
-                            config[section][key.strip()] = _variable_replace_single(
-                                config, f'{section}.{key.strip()}')
-    else:
+    curr_section = 'main'
+    curr_subsections = []
+
+    if not os.path.exists(config_path):
         print(f'Warning: file {config_path} does not exist')
+        return config
+
+    with open(config_path, 'r') as f:
+        lines = f.readlines()
+
+    for i_line, line in enumerate(lines):
+        line = line.strip()
+
+        # Skip empty lines and comments
+        if not line or line.startswith("#"):
+            continue
+
+        if line.strip().startswith("[") and line.strip().endswith("]"):
+            # Found a section
+            #   extract the section name and subsections
+            curr_section, curr_subsections = _parse_section_tag(line)
+
+            # Create section if not available
+            if curr_section not in config:
+                config[curr_section] = {}
+
+            # Add subsections if not available
+            for ss in curr_subsections:
+                if ss not in config[curr_section]:
+                    config[curr_section][ss] = {}
+            continue
+
+        if '=' in line:  # Found a key-value pair
+            key, value = _parse_key_value_pair(line)
+
+            _set_in_config(config, curr_section, curr_subsections,
+                           key, parse_value(value))
+
+        # Found line not part of the syntax
+        print(f"Warning: invalid line ({i_line + 1}) ignored: {line}")
+        continue
 
     return config
 
