@@ -144,7 +144,7 @@ class DocumentationNode(TreeNode):
         Unlazy the content of the node.
 
             Raises:
-                    ValueError: If the content of the node is not a file or a directory.
+                ValueError: If the content of the node is not a file or a directory.
         '''
         if not self.lazy:
             return

@@ -67,17 +67,17 @@ The index file is a JSON (eventually with comments) with following structure:
 
 Basically the documentation will be splitted into `chapters` declared by the outmost `keys` in the JSON file. If an `intro` key is specified it should be valued with the path to a markdown formatted file containing a brief description of the project. If a `quick` key is specified it will be used to create a small chapter containing a _Quick Start_ guide for the project and should be valorized with the path pointing to a markdown formatted file containing these instructions (it could be aggo idea to use the `README.md` file of your project).
 
-> **PATHS**: all paths specified in the `index-file` should be relative to the file is-self!
+> **PATHS**: all paths specified in the `index-file` should be relative to the file it-self!
 
 The value of each chapter has to be a _Documentation Piece_ which is one of the following:
 
 - a `string` containing the path to a source-code file containing the documentation to print;
 - a `vector` containing the paths to source-code files containing the documentation to print or a _Documentation Piece_;
-- a `map` in the form of a _Documentation Piece_ as value and a `string` as key.
+- a `dict` in the form of a _Documentation Piece_ as value and a `string` as key.
 
 Each _Documentation Piece_ has the same form as a chapter with the exception that the `intro` and `quick` keys are not allowed (actually they are allowed but have no special meaning) and have another special key called `__index__` which is a `string` containing the path to another `index-file` nested in the project. This is useful to create nested documentation for a project and is encouraged way of structuring the documentation to make it more flexible.
 
-In general the `verctor` inside a _Documentation Piece_ is discouraged since normally the `key`s of the `map` are used to create the title of a _section_ or _subsection_ and this will not be the case if the `vector` is used.
+In general the `verctor` inside a _Documentation Piece_ is discouraged since normally the `key`s of the `dict` are used to create the title of a _section_ or _subsection_ and this will not be the case if the `vector` is used.
 
 ## Config File
 
