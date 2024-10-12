@@ -142,8 +142,8 @@ def _variable_replace_single(config, host_var_path):
                 partial_res = inj_var_scope[inj_var_key]
                 handled = True
             else:
-                print(f"Warning: key {inj_var_key} not found in {
-                      '.'.join(inj_var_sections)}")
+                print(f'''Warning: key {inj_var_key} not found
+                      in {'.'.join(inj_var_sections)}''')
         else:
             print('CURRENT SCOPE VARIABLE', host_var_sections)
             # Injected variable name is in the same scope as the host variable
@@ -153,8 +153,8 @@ def _variable_replace_single(config, host_var_path):
                 partial_res = host_var_scope[inj_var_key]
                 handled = True
             else:
-                print(f"Warning: key {inj_var_key} not found in {
-                      '.'.join(host_var_sections)} nor it is a predefined variable")
+                print(f'''Warning: key {inj_var_key} not foundin
+                      {'.'.join(host_var_sections)} nor it is a predefined variable''')
 
         print()
 
@@ -165,7 +165,7 @@ def _variable_replace_single(config, host_var_path):
             res = _combine_values(res, partial_res)
         else:
             print(
-                f"Warning: Variable {inj_var_name} not found in config file.")
+                f'Warning: Variable {inj_var_name} not found in config file.')
             # fallback to original string
             res = res + '{' + inj_var_name + '}'
 

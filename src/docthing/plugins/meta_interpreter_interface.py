@@ -39,8 +39,7 @@ class MetaInterpreter(PluginInterface):
         """
         if not self.are_dependencies_available():
             raise Exception(
-                f'Dependencies for the {
-                    self.get_name()} interpreter are not available.')
+                f'''Dependencies for the {self.get_name()} interpreter are not available.''')
 
     def _unload(self):
         """
@@ -107,9 +106,8 @@ class MetaInterpreter(PluginInterface):
 
             # reached end of file without finding end of code
             if i == len(lines) - 1:
-                print(
-                    f'Warning: reached end of file without finding end of code ({
-                        self.get_name()}): giving up')
+                print(f'''Warning: reached end of file without finding end of
+                      code ({self.get_name()}): giving up''')
                 res = []
                 break
 

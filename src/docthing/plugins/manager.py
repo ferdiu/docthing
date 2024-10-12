@@ -44,8 +44,8 @@ class PluginManager:
         avail_plugins = [p.get_name() for p in self.plugins]
         unavailable_plugins = [p for p in plugins if p not in avail_plugins]
         if len(unavailable_plugins) > 0:
-            print(f'Warning: some plugins were not found: {
-                  ', '.join(unavailable_plugins)}')
+            print(f'''Warning: some plugins were not found:
+                  {', '.join(unavailable_plugins)}''')
 
         # Load the specified plugins
         for plugin in self.plugins:
