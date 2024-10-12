@@ -27,32 +27,33 @@ class DocumentationNode(TreeNode):
     a chapter, section, file, directory, or file list. Each node has a title and either
     content or a list of child nodes.
 
-    Args:
-        title (str): The title of the node.
-        content (str, optional): The content of the node, if it is a file.
-        children (list, optional): A list of child nodes, if the node is a chapter, section,
-        directory, or file list.
+        Args:
+            title (str): The title of the node.
+            content (str, optional): The content of the node, if it is a file.
+            children (list, optional): A list of child nodes, if the node is a chapter, section,
+            directory, or file list.
 
-    Raises:
-        ValueError: If both `content` and `children` are provided, or if neither is provided.
+        Raises:
+            ValueError: If both `content` and `children` are provided, or if neither is provided.
     '''
 
     def __init__(self, title, content=None, children=None):
         '''
         Initialize a new DocumentationNode.
-        Args:
-            title (str): The title of the node.
-            content (str, optional): The content of the node, if it is a file.
-            children (list, optional): A list of child nodes, if the node is a chapter,
-            section, directory, or file list.
 
-        Raises:
-            ValueError: If both `content` and `children` are provided, or if neither is
-            provided.
+            Args:
+                title (str): The title of the node.
+                content (str, optional): The content of the node, if it is a file.
+                children (list, optional): A list of child nodes, if the node is a chapter,
+                section, directory, or file list.
+
+            Raises:
+                ValueError: If both `content` and `children` are provided, or if neither is
+                provided.
         '''
         if content is not None and children is not None or content is None and children is None:
             raise ValueError(
-                "Either content or children must be provided, but not both.")
+                'Either content or children must be provided, but not both.')
 
         self.title = title
         self.content = content
@@ -95,7 +96,7 @@ class DocumentationBlob(Tree):
 
     def _generate_root(self, index_file_json):
         if 'main-title' not in index_file_json:
-            raise ValueError("Index file must contain 'main-title'")
+            raise ValueError('Index file must contain \'main-title\'')
 
         res = DocumentationNode(index_file_json['main-title'])
 

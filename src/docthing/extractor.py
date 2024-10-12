@@ -9,7 +9,7 @@ from .util import parse_value
 # =======================
 
 def extract_documentation(path_to_file, parser_config):
-    """
+    '''
     Extracts the documentation from the specified file path using the provided parser
     configuration.
 
@@ -21,7 +21,7 @@ def extract_documentation(path_to_file, parser_config):
         Returns:
             str or None: The extracted documentation, or None if no documentation
             was found.
-    """
+    '''
     res, options = _peek_n_read_if_match(path_to_file, parser_config)
 
     if res is None:
@@ -98,12 +98,12 @@ def _parse_options(line):
     '''
     Parses the options string from a documentation block line.
 
-    Args:
-        line (str): The line containing the options string.
+        Args:
+            line (str): The line containing the options string.
 
-    Returns:
-        dict: A dictionary of parsed options, where the keys are the option names and
-        the values are the parsed option values.
+        Returns:
+            dict: A dictionary of parsed options, where the keys are the option names and
+            the values are the parsed option values.
     '''
     res = {}
 
@@ -131,7 +131,7 @@ def _parse_options(line):
 # =======================
 
 def _peek_n_read_if_match(path_to_file, parser_config):
-    """
+    '''
     Peeks the source code file to check for the presence of a documentation string
     and reads until the end of the documentation if found.
 
@@ -143,7 +143,7 @@ def _peek_n_read_if_match(path_to_file, parser_config):
             (list[str], options) or None: A list of strings containing the lines of
             the documentation block and extracted options in a tuple, or None if no
             documentation block is found.
-    """
+    '''
     ext = os.path.splitext(path_to_file)[1].replace('.', '')
     begin_regex = _regex_begin_documentation(ext, parser_config)
     end_regex = _regex_end_documentation(ext, parser_config)

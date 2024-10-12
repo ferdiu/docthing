@@ -70,7 +70,7 @@ class TreeNode(ABC):
         Get the child node at the specified index.
         '''
         if index < 0 or index >= len(self.children):
-            raise IndexError("Index out of range")
+            raise IndexError('Index out of range')
         return self.children[index]
 
     def remove_child(self, index):
@@ -80,20 +80,20 @@ class TreeNode(ABC):
         '''
         if isinstance(index, int):
             if index < 0 or index >= len(self.children):
-                raise IndexError("Index out of range")
+                raise IndexError('Index out of range')
             child = self.children[index]
             self.children.remove(child)
             child.set_parent(None)
             return child
         elif isinstance(index, TreeNode):
             if index not in self.children:
-                raise ValueError("Child not found in the tree")
+                raise ValueError('Child not found in the tree')
             child = index
             self.children.remove(child)
             child.set_parent(None)
             return child
         else:
-            raise TypeError("Invalid index type")
+            raise TypeError('Invalid index type')
 
     def get_depth(self):
         '''

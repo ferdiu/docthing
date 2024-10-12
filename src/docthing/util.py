@@ -19,8 +19,8 @@ def mkdir_silent(output_dir):
     This is a utility function that can be used to ensure that an output directory is
     available before writing files to it.
 
-    Args:
-        output_dir (str): The path of the output directory to create.
+        Args:
+            output_dir (str): The path of the output directory to create.
     '''
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)

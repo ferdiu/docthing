@@ -14,8 +14,8 @@ def _combine_values(v1, v2):
     '''
     Helper function to combine two values.
 
-    If they are both strings they will be concatenated.
-    If one of them or both are lists then the combination will be returned as a list.
+        If they are both strings they will be concatenated.
+        If one of them or both are lists then the combination will be returned as a list.
     '''
     res = v1
 
@@ -55,7 +55,7 @@ def _go_into_scope(config, path_in_dicts, last_is_key=False):
     elif isinstance(path_in_dicts, list):
         sections = path_in_dicts
     else:
-        raise ValueError("Invalid scope type. Expected str or list.")
+        raise ValueError('Invalid scope type. Expected str or list.')
 
     if last_is_key:
         sections = sections[:-1]
@@ -64,7 +64,7 @@ def _go_into_scope(config, path_in_dicts, last_is_key=False):
     current = config.copy()
     for section in sections:
         if section not in current:
-            print(f"Warning: Section {section} not found in config file.")
+            print(f'Warning: Section {section} not found in config file.')
             break
         current = current[section]
     return current
@@ -102,7 +102,7 @@ def _variable_replace_single(config, host_var_path):
     host_var_value = _get_var_value(config, host_var_path)
 
     if isinstance(host_var_value, dict):
-        raise ValueError("Variables cannot be nested in the config file.")
+        raise ValueError('Variables cannot be nested in the config file.')
 
     if not isinstance(host_var_value, str) or '{' not in host_var_value:
         return host_var_value
@@ -286,10 +286,10 @@ def load_config(config_path, command_line_config={}):
         line = line.strip()
 
         # Skip empty lines and comments
-        if not line or line.startswith("#"):
+        if not line or line.startswith('#'):
             continue
 
-        if line.strip().startswith("[") and line.strip().endswith("]"):
+        if line.strip().startswith('[') and line.strip().endswith(']'):
             # Found a section
             #   extract the section name and subsections
             curr_section, curr_subsections = _parse_section_tag(line)
@@ -311,7 +311,7 @@ def load_config(config_path, command_line_config={}):
                            key, parse_value(value))
 
         # Found line not part of the syntax
-        print(f"Warning: invalid line ({i_line + 1}) ignored: {line}")
+        print(f'Warning: invalid line ({i_line + 1}) ignored: {line}')
         continue
 
     return config

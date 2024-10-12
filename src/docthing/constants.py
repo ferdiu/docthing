@@ -55,8 +55,8 @@ DEFAULT_CONFIG = {
         'jsx': _c_like_languages_parser_config,    # React and React Native JavaScript
         'tsx': _c_like_languages_parser_config,    # React and React Native TypeScript
         'jl': {                                    # Julia
-            'begin_ml_comment': "#=",
-            'end_ml_comment': "=#",
+            'begin_ml_comment': '#=',
+            'end_ml_comment': '=#',
             'allow_sl_comments': False,
         },
         'rs': _c_like_languages_parser_config,     # Rust
@@ -69,7 +69,7 @@ DEFAULT_CONFIG = {
 
 
 def index_file_dir(config):
-    """
+    '''
     Determine the directory containing the index file based on the configuration.
 
     If the `main` section or `index_file` option is not defined in the configuration,
@@ -80,7 +80,7 @@ def index_file_dir(config):
 
         Returns:
             str: The absolute path to the directory containing the index file.
-    """
+    '''
     if 'main' not in config:
         print('Warning: using variable index-file-dir before defining `main` section in config file')
         return '{index-file-dir}'

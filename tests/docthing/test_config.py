@@ -6,27 +6,27 @@ from docthing.config import _go_into_scope, _get_var_value
 
 
 def test_combine_values():
-    assert _combine_values("a", "b") == "ab"
-    assert _combine_values("a", ["b", "c"]) == ["ab", "ac"]
-    assert _combine_values(["a", "b"], "c") == ["ac", "bc"]
-    assert _combine_values(["a", "b"], ["c", "d"]) == ["ac", "ad", "bc", "bd"]
+    assert _combine_values('a', 'b') == 'ab'
+    assert _combine_values('a', ['b', 'c']) == ['ab', 'ac']
+    assert _combine_values(['a', 'b'], 'c') == ['ac', 'bc']
+    assert _combine_values(['a', 'b'], ['c', 'd']) == ['ac', 'ad', 'bc', 'bd']
 
 
 def test_split_sections_key():
-    assert _split_sections_key(["a", "b", "c"]) == (["a", "b"], "c")
-    assert _split_sections_key(["x"]) == ([], "x")
+    assert _split_sections_key(['a', 'b', 'c']) == (['a', 'b'], 'c')
+    assert _split_sections_key(['x']) == ([], 'x')
 
 
 def test_go_into_scope():
     config = {
-        "a": {
-            "b": {
-                "c": "value"
+        'a': {
+            'b': {
+                'c': 'value'
             }
         }
     }
-    assert _go_into_scope(config, "a.b") == {"c": "value"}
-    assert _go_into_scope(config, ["a", "b"]) == {"c": "value"}
+    assert _go_into_scope(config, 'a.b') == {'c': 'value'}
+    assert _go_into_scope(config, ['a', 'b']) == {'c': 'value'}
 
     with pytest.raises(ValueError):
         _go_into_scope(config, 123)
@@ -34,69 +34,69 @@ def test_go_into_scope():
 
 def test_get_var_value():
     config = {
-        "section1": {
-            "subsection": {
-                "key": "value"
+        'section1': {
+            'subsection': {
+                'key': 'value'
             }
         }
     }
-    assert _get_var_value(config, "section1.subsection.key") == "value"
-    assert _get_var_value(config, ["section1", "subsection", "key"]) == "value"
+    assert _get_var_value(config, 'section1.subsection.key') == 'value'
+    assert _get_var_value(config, ['section1', 'subsection', 'key']) == 'value'
 
 
 def test_variable_replace_single():
     config = {
-        "section1": {
-            "my_variable": "actual_value",
-            "my_replaceable": "{my_variable}",
-            "predefined_var": "pre-{predefined-var}-post",
-            "middle_replace": "pre-{my_variable}-post",
-            "nested": {
-                "missing_variable": "{non_existing_variable}",
+        'section1': {
+            'my_variable': 'actual_value',
+            'my_replaceable': '{my_variable}',
+            'predefined_var': 'pre-{predefined-var}-post',
+            'middle_replace': 'pre-{my_variable}-post',
+            'nested': {
+                'missing_variable': '{non_existing_variable}',
             },
         },
-        "section2": {
-            "nested": {
-                "key": "nested_value",
-                "next_to_key": "{key}",
+        'section2': {
+            'nested': {
+                'key': 'nested_value',
+                'next_to_key': '{key}',
             },
         },
     }
 
     mock_predefined_variables = {
-        "predefined-var": lambda config: "replaced_value"
+        'predefined-var': lambda config: 'replaced_value'
     }
 
     # Test simple replacement
     result = _variable_replace_single(
-        config, "section1.my_replaceable")
-    assert result == "actual_value"
+        config, 'section1.my_replaceable')
+    assert result == 'actual_value'
 
     # Test replacement within other values
-    result = _variable_replace_single(config, "section1.middle_replace")
-    assert result == "pre-actual_value-post"
+    result = _variable_replace_single(config, 'section1.middle_replace')
+    assert result == 'pre-actual_value-post'
 
     # Test nested variable replacement
-    result = _variable_replace_single(config, "section2.nested.key")
-    assert result == "nested_value"
+    result = _variable_replace_single(config, 'section2.nested.key')
+    assert result == 'nested_value'
 
     # Test predefined variable replacement
     with patch('docthing.config.PREDEFINED_VARIABLES', mock_predefined_variables):
         result = _variable_replace_single(
-            config, "section1.predefined_var")
-        assert result == "pre-replaced_value-post"
+            config, 'section1.predefined_var')
+        assert result == 'pre-replaced_value-post'
 
     # Test when variable is not found
     result = _variable_replace_single(
         config,
-        "section1.nested.missing_variable")
-    assert result == "{non_existing_variable}"
+        'section1.nested.missing_variable')
+    assert result == '{non_existing_variable}'
 
     # Test scoped variable replacement
     result = _variable_replace_single(
         config,
-        "section2.nested.next_to_key")
-    assert result == "nested_value"
+        'section2.nested.next_to_key')
+    assert result == 'nested_value'
 
 
 def test_merge_configs():
@@ -155,8 +155,8 @@ def test_load_config():
     '''
     command_line_config = {'main': {'index_file': 'command_line_index.jsonc'}}
 
-    with patch("builtins.open", mock_open(read_data=mock_config_file)):
-        with patch("os.path.exists", return_value=True):
+    with patch('builtins.open', mock_open(read_data=mock_config_file)):
+        with patch('os.path.exists', return_value=True):
             config = load_config(config_path, command_line_config)
 
     expected_config = {

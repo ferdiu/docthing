@@ -19,32 +19,32 @@ from .plugin_interface import PluginInterface
 
 
 class MetaInterpreter(PluginInterface):
-    """
+    '''
     MetaInterpreter is an abstract class that defines the interface for meta-interpreters.
-    """
+    '''
 
     def __init__(self, config):
-        """
+        '''
         Initializes the MetaInterpreter instance with the provided configuration.
 
         Args:
             config (dict): The configuration for the MetaInterpreter instance.
-        """
+        '''
         super().__init__(config)
         self.config = config
 
     def _load(self):
-        """
+        '''
         Loads the MetaInterpreter instance by checking if the dependencies are available.
-        """
+        '''
         if not self.are_dependencies_available():
             raise Exception(
                 f'''Dependencies for the {self.get_name()} interpreter are not available.''')
 
     def _unload(self):
-        """
+        '''
         Unloads the MetaInterpreter instance.
-        """
+        '''
         pass
 
     @abstractmethod

@@ -17,7 +17,7 @@ from .util import mkdir_silent
 
 # Function to process the index file and create the documentation
 def process_index(index_file, output_dir, config):
-    """
+    '''
     Processes the index file and creates the documentation for the project.
 
         Args:
@@ -27,7 +27,7 @@ def process_index(index_file, output_dir, config):
 
         Returns:
             None
-    """
+    '''
     with open(index_file, 'r') as f:
         index_data = json.load(f)
 
@@ -58,7 +58,7 @@ def process_index(index_file, output_dir, config):
 # =======================
 
 def _process_chapters(data, output_dir, config, exclude_keys=[]):
-    """
+    '''
     Recursively processes the chapters and sections in the index data, generating documentation for each item.
 
         Args:
@@ -69,7 +69,7 @@ def _process_chapters(data, output_dir, config, exclude_keys=[]):
 
         Returns:
             None
-    """
+    '''
     for key, value in data.items():
         if key in exclude_keys:
             continue
@@ -88,7 +88,7 @@ def _process_chapters(data, output_dir, config, exclude_keys=[]):
             # List of documentation files
             for i, filename in enumerate(value, start=1):
                 _generate_documentation_from_source_code(
-                    filename, output_dir, f"{key}_{i}.md", config)
+                    filename, output_dir, f'{key}_{i}.md', config)
 
 
 # =======================
@@ -96,7 +96,7 @@ def _process_chapters(data, output_dir, config, exclude_keys=[]):
 # =======================
 
 def _copy_file_to_output(src_file, output_dir, dest_filename):
-    """
+    '''
     Copies a source file to the specified output directory with the given destination filename.
 
         Args:
@@ -106,17 +106,17 @@ def _copy_file_to_output(src_file, output_dir, dest_filename):
 
         Returns:
             None
-    """
+    '''
     src_path = Path(src_file)
     if src_path.exists():
         shutil.copy(src_path, os.path.join(output_dir, dest_filename))
     else:
-        print(f"Warning: {src_file} does not exist.")
+        print(f'Warning: {src_file} does not exist.')
 
 
 def _generate_documentation_from_source_code(
         source_code, output_dir, dest_filename, config):
-    """
+    '''
     Generates documentation for a source code file and writes it to the specified output directory.
 
         Args:
@@ -127,7 +127,7 @@ def _generate_documentation_from_source_code(
 
         Returns:
             None
-    """
+    '''
     if source_code.endswith('.md'):
         return _copy_file_to_output(source_code, output_dir, dest_filename)
 

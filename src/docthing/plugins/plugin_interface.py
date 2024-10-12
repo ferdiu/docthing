@@ -40,7 +40,7 @@ class PluginInterface(ABC):
         '''
         Load the plugin and perform any necessary initialization.
         '''
-        print(f"Loading plugin: {self.get_name()}")
+        print(f'Loading plugin: {self.get_name()}')
         self._load()
         self.loaded = True
 

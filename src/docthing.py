@@ -18,19 +18,19 @@ from docthing.plugins.meta_interpreter.plantuml import PlantUMLInterpreter
 # documentation generation
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate documentation from project index file.")
+        description='Generate documentation from project index file.')
     parser.add_argument(
         'index_file',
-        help="Index file or project directory containing docthing.jsonc",
+        help='Index file or project directory containing docthing.jsonc',
         nargs='?',
         default=os.getcwd())
     parser.add_argument(
         '--config',
-        help="Relative to index directory path to configuration file",
+        help='Relative to index directory path to configuration file',
         default=DEFAULT_CONFIG_FILE)
     parser.add_argument(
         '--outdir',
-        help="Output directory for documentation",
+        help='Output directory for documentation',
         default=DEFAULT_OUTPUT_DIR)
 
     args = parser.parse_args()
@@ -43,7 +43,7 @@ def main():
 
     # Check if the index file exists
     if not os.path.exists(index_file):
-        print(f"Error: Index file {index_file} does not exist.")
+        print(f'Error: Index file {index_file} does not exist.')
         return
 
     command_line_config = {
@@ -92,5 +92,5 @@ def main():
     print(blob)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
