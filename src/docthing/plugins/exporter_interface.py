@@ -2,6 +2,8 @@
 from abc import abstractmethod
 import os
 
+from docthing.documentation_content import ResourceReference
+
 from .plugin_interface import PluginInterface
 from ..util import mkdir_silent
 
@@ -28,6 +30,8 @@ class Exporter(PluginInterface):
             leaf_relative_path = os.path.join(*[p.get_title() for p in leaf.get_path()])
             leaf_complete_path = os.path.join(plugin_out_dir, leaf_relative_path)
             mkdir_silent(os.path.dirname(leaf_complete_path))
+            self._export_leaf_resources(leaf, leaf_complete_path)
+            leaf.replace_resources_with_imports(self.import_function)
             self._export_leaf(leaf, leaf_complete_path)
 
     @abstractmethod
@@ -38,3 +42,18 @@ class Exporter(PluginInterface):
         E.g. if the leaf is `path/to/file.md`, the `output_file_no_ext` is `path/to/file`.
         '''
         pass
+
+    @abstractmethod
+    def import_function(self, leaf_title, resource):
+        '''
+        Returns the string to import an external resource in the output language.
+        '''
+        pass
+
+    def _export_leaf_resources(self, leaf, output_file_no_ext):
+            '''
+            Exports the resources of a leaf node to the specified format.
+            '''
+            for resource in [l for l in leaf.get_content()
+                             if isinstance(l, ResourceReference)]:
+                resource.write(output_file_no_ext)

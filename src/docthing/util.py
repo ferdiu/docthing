@@ -66,4 +66,4 @@ def sha256sum(string):
     '''
     Computes the SHA-256 hash of a given string.
     '''
-    hashlib.sha256(str.encode(string)).hexdigest()
+    return hashlib.sha256(str.encode(string)).hexdigest()

@@ -89,7 +89,11 @@ def main():
         index_file,
         config['parser'])
 
-    blob.unlazy()
+    # Apply all meta interpreters
+    for interpreter in interpreter_manager.get_plugins():
+        interpreter.interpret(blob)
+
+    print(blob)
 
     # Output the documentation
     for exporter in exporter_manager.get_plugins():

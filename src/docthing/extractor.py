@@ -1,3 +1,14 @@
+''' BEGIN FILE DOCUMENTATION
+
+## Example plantuml:
+
+@startuml
+Bob -> Alice : hello
+@enduml
+
+And here some text just to check if everything is working properly after the inclusion of an external resource file.
+
+END FILE DOCUMENTATION '''
 
 import re
 import os

@@ -1,7 +1,8 @@
 
 import subprocess as sp
 
-from ..meta_interpreter_interface import MetaInterpreter, InterpretedCode
+from ...documentation_content import ResourceReference
+from ..meta_interpreter_interface import MetaInterpreter
 
 
 class PlantUMLInterpreter(MetaInterpreter):
@@ -34,28 +35,29 @@ class PlantUMLInterpreter(MetaInterpreter):
     def _should_keep_ending(self):
         return True
 
+    def generate_resource(self, source):
+        return PlantUMLReference(source)
 
-class InterpretedPlantUML(InterpretedCode):
+
+class PlantUMLReference(ResourceReference):
     '''
-    Represents an interpreted PlantUML diagram.
-
-    The `InterpretedPlantUML` class is responsible for rendering a PlantUML diagram
-    from a set of code lines. It uses the `plantuml` command-line tool to generate a
-    PNG image from the PlantUML code.
-
-    The `_command` method runs the `plantuml` command with the necessary arguments
-    to generate the PNG output from the PlantUML code lines. The `_get_output_exntesion`
-    method returns the file extension of the generated output, which is 'png' in this
-    case.
+    A class that represents a reference to a PlantUML diagram.
     '''
 
-    def __init__(self, code_lines):
-        super().__init__(code_lines)
+    def __init__(self, source):
+        super().__init__(source, 'image')
 
-    def _command(self, output_file):
-        sp.run(['plantuml', '-tpng', '-pipe'],
-               stdin='\n'.join(self.code_lines),
-               stdout=output_file)
-
-    def _get_output_exntesion(self):
+    def get_ext(self):
         return 'png'
+
+    def compile(self) -> str | bytes:
+        try:
+            completed_process = sp.run(
+                ['plantuml', '-tpng', '-pipe'],
+                input=''.join(self.source).encode('utf-8'),
+                stdout=sp.PIPE,
+                check=True,
+            )
+            return completed_process.stdout
+        except sp.CalledProcessError as e:
+            raise Exception(f'Error while compiling PlantUML code: {e.stderr}')

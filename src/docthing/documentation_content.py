@@ -1,6 +1,7 @@
 
 
 from abc import ABC, abstractmethod
+import re
 
 from docthing.util import sha256sum
 
@@ -10,36 +11,95 @@ class ResourceReference(ABC):
     A class that represents a reference to a resource.
     '''
 
-    def __init__(self, path, type, compile_to=None):
-        self.path = path
-        self.type = type
-        self.compile_to = compile_to
+    def search(line):
+        '''
+        Searches for a resource reference in the given line.
 
-    def need_compilation(self):
-        return self.compile_to is not None
+        If a reference is found, returns a tuple containing the type and the path of the resource.
+        Otherwise, returns None.
+        '''
+        m = re.search(r'^@ref\((.+)\)-->\[(.+)\]$', line)
+        if m is None:
+            return None
+
+        return m.group(1), m.group(2)
+
+    def __init__(self, source, type, use_hash=True):
+        self.source = source
+        self.type = type
+        self.use_hash = use_hash
+        self.hash = sha256sum(''.join(source))
+        self.compiled = None
+
+    def get_source(self):
+        '''
+        Returns the source of the resource.
+        '''
+        return self.source
+
+    def get_type(self):
+        '''
+        Returns the type of the resource.
+        '''
+        return self.type
+
+    def get_hash(self):
+        '''
+        Returns the hash of the resource.
+        '''
+        return self.hash
+
+    def get_path(self):
+        '''
+        Returns the end of the name of the resource output file (after compilation).
+
+        It is a string with following syntax:
+            _<hash>.<extension>
+
+            eg. `_1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef.png`
+
+        If `use_hash` was setted to False when creating the resource reference, the path will be instead:
+            .<extension>
+
+            eg. `.png`
+        '''
+        if self.use_hash:
+            return '_' + self.get_hash() + '.' + self.get_ext()
+        else:
+            return '.' + self.get_ext()
 
     @abstractmethod
-    def _compile(self):
+    def compile(self, output_prefix) -> str | bytes:
+        '''
+        Compiles the resource reference.
+
+        Returns the compiled resource reference.
+        It can be a string or a bytes object.
+
+        This has to be implemented in a concrete ResourceReference class.
+        '''
         pass
 
-    def compile(self):
-        if self.need_compilation():
-            self._compile()
+    @abstractmethod
+    def get_ext(self):
+        '''
+        Returns the extension of the resource.
+        '''
+        pass
+
+    def write(self, output_prefix):
+        if self.compiled is None:
+            self.compiled = self.compile()
+
+        mode = 'w+'
+        if isinstance(self.compiled, bytes):
+            mode = 'wb+'
+
+        with open(output_prefix + self.get_path(), mode) as f:
+            f.write(self.compiled)
 
     def __str__(self):
-        return f'@ref({self.type})-->[{self.path}]-->' + \
-            '{' + self.compile_to + '}'
-
-
-class CodeReference(ResourceReference):
-    '''
-    A class that represents a reference to a code resource.
-    '''
-    def __init__(self, path, type, source_code, compiled_ext):
-        self.source_code = source_code
-        self.path = path
-        self.hash = sha256sum(''.join(source_code))
-        super().__init__(path, type, self.hash + '.' + compiled_ext)
+        return f'@ref({self.get_type()})-->[{self.get_path()}]\n'
 
 
 class Document():
@@ -51,19 +111,101 @@ class Document():
         if not Document.can_be(content):
             raise ValueError(
                 'content must be a list of strings or ResourceReferences')
-        self.content = content
+        if isinstance(content, str):
+            self.content = content.splitlines(keepends=True)
+        else:
+            self.content = content
 
     def can_be(vec):
+        '''
+        Returns whether the given vector can be a Document.
+        '''
+        if isinstance(vec, str):
+            return True
         if not isinstance(vec, list):
             return False
         for el in vec:
-            if not isinstance(
-                    el,
-                    ResourceReference) and not isinstance(
-                    el,
-                    str):
+            if not isinstance(el, ResourceReference) and \
+               not isinstance(el, str):
                 return False
         return True
+
+    def get_printable(self) -> str:
+        if isinstance(self.content, str):
+            return self.content
+        elif isinstance(self.content, ResourceReference):
+            return str(self.content)
+        elif isinstance(self.content, list):
+            return ''.join([str(c) for c in self.content])
+        else:
+            raise ValueError('content must be a list of strings or ' +\
+                             'ResourceReferences')
+
+    def replace_lines_with_reference(self, reference, begin, end):
+        '''
+        Replace lines between begin and end with a reference.
+        '''
+        if not isinstance(reference, ResourceReference):
+            raise ValueError('reference must be a ResourceReference')
+
+        if end is None:
+            end = len(reference.get_source()) - 1
+
+        if not isinstance(begin, int) or not isinstance(end, int):
+            raise ValueError('begin and end must be integers')
+
+        if begin < 0 or end < 0:
+            raise ValueError('begin and end must be positive')
+
+        if begin > end:
+            raise ValueError(f'begin must be less than or equal to end: ({begin}, {end})')
+
+        if begin >= len(self.content) or end >= len(self.content):
+            raise ValueError('begin and end must be less than the length of the content')
+
+        self.content = self.content[:begin] + [reference] + self.content[end+1:]
+
+    def replace_resources_with_imports(self, title, import_function):
+        for i, el in enumerate(self.content):
+            if isinstance(el, ResourceReference) or ResourceReference.search(el):
+                self.content[i] = import_function(title, el)
+
+    def prepend_resource(self, resource):
+        if isinstance(resource, list):
+            for el in resource:
+                if not isinstance(el, ResourceReference) or isinstance(el, str):
+                    raise ValueError('resources must be all ResourceReferences or strs')
+        if not isinstance(resource, ResourceReference) or isinstance(resource, str):
+            raise ValueError('resource must be a ResourceReference or a str')
+
+        if isinstance(resource, list):
+            for el in resource:
+                self.content.insert(0, el)
+        else:
+            self.content.insert(0, resource)
+
+    def append_resource(self, resource):
+        if isinstance(resource, list):
+            for el in resource:
+                if not isinstance(el, ResourceReference) or isinstance(el, str):
+                    raise ValueError('resources must be all ResourceReferences or strs')
+        if not isinstance(resource, ResourceReference) or isinstance(resource, str):
+            raise ValueError('resource must be a ResourceReference or a str')
+
+        if isinstance(resource, list):
+            for el in resource:
+                self.content.append(el)
+        else:
+            self.content.append(resource)
+
+    def __iter__(self):
+        return iter(self.content)
+
+    def __getitem__(self, index):
+        if isinstance(index, (slice, int)):
+            return self.content[index]
+        elif isinstance(index, tuple):
+            return self.content[index[0]:index[1]]
 
     def __str__(self):
         line_count = 0

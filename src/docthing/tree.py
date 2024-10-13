@@ -154,6 +154,74 @@ class TreeNode(ABC):
                 leaves.extend(child.get_leaves())
             return leaves
 
+    def get_name(self):
+        '''
+        Get the name of the current node.
+        '''
+        return '.'.join(self.get_path()) + '::' + str(self)
+
+    def get_index_in_parent(self):
+        '''
+        Get the index of the current node in its parent's children list.
+        '''
+        if self.parent is None:
+            return None
+        else:
+            return self.parent.children.index(self)
+
+    def get_previous_sibling(self):
+        '''
+        Get the previous sibling of the current node.
+        '''
+        if self.parent is None:
+            return None
+        else:
+            index = self.get_index_in_parent()
+            if index == 0:
+                return None
+            else:
+                return self.parent.children[index - 1]
+
+    def get_next_sibling(self):
+        '''
+        Get the next sibling of the current node.
+        '''
+        if self.parent is None:
+            return None
+        else:
+            index = self.get_index_in_parent()
+            if index == len(self.parent.children) - 1:
+                return None
+            else:
+                return self.parent.children[index + 1]
+
+    def get_previous_tree_leaf_breadth_first(self):
+        '''
+        Get the previous leaf node int the root in breadth-first order.
+
+        Works only on leaves.
+        '''
+        root = self.get_root()
+        leaves = root.get_leaves()
+        self_index = leaves.index(self)
+        if self_index == 0:
+            return None
+        else:
+            return leaves[self_index - 1]
+
+    def get_next_tree_leaf_breadth_first(self):
+        '''
+        Get the next leaf node int the root in breadth-first order.
+        Works only on leaves.
+        '''
+        root = self.get_root()
+        leaves = root.get_leaves()
+        self_index = leaves.index(self)
+        if self_index == len(leaves) - 1:
+            return None
+        else:
+            return leaves[self_index + 1]
+
     def to_string(self, prevprefix='', position='first'):
         if position not in ['first', 'middle', 'last']:
             raise ValueError('Invalid position')

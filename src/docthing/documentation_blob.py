@@ -15,7 +15,7 @@ END FILE DOCUMENTATION '''
 import json
 import os
 
-from docthing.documentation_content import ResourceReference
+from docthing.documentation_content import Document, ResourceReference
 from docthing.extractor import extract_documentation
 from docthing.tree import Tree, TreeNode
 
@@ -117,6 +117,7 @@ class DocumentationNode(TreeNode):
             raise ValueError(
                 f'The content of the node {
                     self.title} is not a file or a directory.')
+        self.content = Document(self.content)
         self.lazy = False
 
     def unlazy(self):
@@ -158,6 +159,14 @@ class DocumentationNode(TreeNode):
                 str: The title of the node.
         '''
         return self.title
+
+    def replace_resources_with_imports(self, import_function):
+        '''
+        Replace resources with imports in the content of the node.
+        '''
+        if not self.content is None:
+            self.content.replace_resources_with_imports(
+                self.get_title(), import_function)
 
     def __str__(self) -> str:
         if not self.lazy and self.is_leaf():

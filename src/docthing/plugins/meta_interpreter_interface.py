@@ -10,11 +10,10 @@ In the documentation, the code block should have been replaced by a uuid.
 
 END FILE DOCUMENTATION '''
 
-import os
 import re
-import uuid
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+
 from .plugin_interface import PluginInterface
 
 
@@ -23,12 +22,18 @@ class MetaInterpreter(PluginInterface):
     MetaInterpreter is an abstract class that defines the interface for meta-interpreters.
     '''
 
-    def __init__(self, documentation_blob):
+    def __init__(self, config, mode='block'):
         '''
-        Initializes the MetaInterpreter instance with the provided DocumentationBlob instance.
+        Initializes the MetaInterpreter instance with the provided configuration.
         '''
-        super().__init__(documentation_blob)
-        self.documentation_blob = documentation_blob
+        if mode not in ['block', 'begin_file', 'end_file']:
+            raise Exception(
+                f'Mode {mode} is not supported. ' +\
+                'Please use either \'block\', \'begin_file\' or \'end_file\'.')
+
+        super().__init__(config)
+        self.config = config
+        self.mode = mode
 
     def _enable(self):
         '''
@@ -71,6 +76,13 @@ class MetaInterpreter(PluginInterface):
         '''
         return False
 
+    @abstractmethod
+    def generate_resource(self, source):
+        '''
+        Generate a resource reference from the given source.
+        '''
+        pass
+
     def is_begin_code(self, line):
         '''
         Return whether the given line is the beginning of the code block.
@@ -83,106 +95,86 @@ class MetaInterpreter(PluginInterface):
         '''
         return re.search(self._get_end_code(), line) is not None
 
-    def extract_code(self, lines, beginning=0):
+    def find_first_begin_code_index(self, lines):
         '''
-        Extract the code block from the given lines starting from line number `beginning`
-        (indexed from 0).
+        Find the index of the first line in the list that is the beginning of a code block.
         '''
-        res = []
+        return next((i for i, line in enumerate(lines)
+                    if self.is_begin_code(line)), None)
 
-        if self._should_keep_beginning():
-            real_beginning = beginning
+    def find_first_end_code_index(self, lines, beginning=0):
+        '''
+        Find the index of the first line in the list that is the ending of a code block
+        from the `beginning` line of the code block.
+        '''
+        return next((i for i, line in enumerate(lines[beginning:])
+                    if self.is_end_code(line)), None) + beginning
+
+    def find_begin_and_end(self, lines):
+        '''
+        Find the first and last line of the code block in the given list of lines.
+        '''
+        first_line = self.find_first_begin_code_index(lines)
+
+        if first_line is None:
+            return None, None
+
+        last_line = self.find_first_end_code_index(lines, first_line)
+
+        return first_line, last_line
+
+    def interpret_leaf_begin_file(self, leaf):
+        leaf.get_content().prepend_resource(
+            self.generate_resource(leaf))
+
+    def interpret_leaf_end_file(self, leaf):
+        leaf.get_content().append_resource(
+            self.generate_resource(leaf))
+
+    def interpret_leaf_block(self, leaf):
+        '''
+        Interpret the leaf and return the result.
+        '''
+        first_line, last_line = self.find_begin_and_end(leaf.get_content())
+
+        if first_line is None:
+            return
+
+        if last_line is None:
+            print('Warning: reached end of file without finding end of ' +\
+                  f'code ({self.get_name()}): giving up')
+
+        if not self._should_keep_beginning():
+            content_first_line = first_line + 1
         else:
-            real_beginning = beginning + 1
+            content_first_line = first_line
 
-        for i in range(real_beginning, len(lines)):
-            # reached end of plantuml code
-            if self.is_end_code(lines[i]):
-                if self._should_keep_ending():
-                    res.append(lines[i])
-                break
+        if not self._should_keep_ending():
+            content_last_line = last_line
+        else:
+            content_last_line = last_line + 1
 
-            # reached end of file without finding end of code
-            if i == len(lines) - 1:
-                print(f'''Warning: reached end of file without finding end of
-                      code ({self.get_name()}): giving up''')
-                res = []
-                break
+        leaf.get_content().replace_lines_with_reference(
+            self.generate_resource(leaf.get_content()[content_first_line, content_last_line]),
+            first_line, last_line)
 
-            res.append(lines[i])
+    def interpret_leaf(self, leaf):
+        if self.mode == 'begin_file':
+            self.interpret_leaf_begin_file(leaf)
+        elif self.mode == 'end_file':
+            self.interpret_leaf_end_file(leaf)
+        elif self.mode == 'block':
+            self.interpret_leaf_block(leaf)
 
-        return res
-
-    def interpret(self, lines, beginning=0):
+    def interpret(self, documentation_blob):
         '''
-        Interpret the code block starting from line number `beginning` (indexed from 0).
+        Search all leaf in DocumentationBlob and interpret the code blocks.
+
+        This will replace lines in `Document`s with the result of the interpretation
+        which is a `ResourceReference` implementation.
         '''
-        code = self.extract_code(lines, beginning)
-        return InterpretedCode(code, self.documentation_blob.config['output_dir'])
+        for leaf in documentation_blob.get_leaves():
+            if leaf.is_lazy():
+                leaf.unlazy()
 
-
-class InterpretedCode(ABC):
-    '''
-    Represents an interpreted code block that can be compiled and output to a file.
-
-    The `InterpretedCode` class is an abstract base class that provides a common interface
-    for interpreting and compiling code blocks. Subclasses of `InterpretedCode` must implement
-    the `_command` and `_get_output_exntesion` methods to define how the code block is
-    interpreted and compiled.
-
-    The `InterpretedCode` class has the following attributes:
-    - `uuid`: A unique identifier for the interpreted code block.
-    - `code_lines`: A list of strings representing the lines of code to be interpreted.
-    - `output_dir`: The directory where the compiled output will be written.
-
-    The `compile` method writes the compiled output to a file in the `output_dir` directory,
-    with the filename based on the `uuid` and the output file extension.
-
-    The `get_compiled_path` method returns the full path to the compiled output file.
-    '''
-
-    def __init__(self, code_lines, output_dir):
-        '''
-        Initializes an `InterpretedCode` object with the provided code lines and output
-        directory.
-
-        Args:
-            code_lines (list[str]): The lines of code to be interpreted.
-            output_dir (str): The directory where the interpreted code will be output.
-        '''
-        self.uuid = str(uuid.uuid4())
-        self.code_lines = code_lines
-        self.output_dir = output_dir
-
-    @abstractmethod
-    def _command(self, output_file):
-        '''
-        Executes the command to interpret the code block and write the output to the given
-        output_file.
-        '''
-        pass
-
-    @abstractmethod
-    def _get_output_exntesion(self):
-        '''
-        Returns the file extension of the output file.
-        '''
-        pass
-
-    def compile(self):
-        '''
-        Compiles the interpreted code block and writes the output to a file in the output
-        directory.
-        '''
-        with open(self.uuid + '.' + self._get_output_exntesion(), 'w') as f:
-            self._command(f)
-
-    def get_compiled_path(self):
-        '''
-        Returns the full path to the compiled output file.
-        '''
-        return os.path.join(
-            self.output_dir,
-            self.uuid +
-            '.' +
-            self._get_output_exntesion())
+            self.interpret_leaf(leaf)
