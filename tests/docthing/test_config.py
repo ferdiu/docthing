@@ -181,7 +181,6 @@ def test_validate_config():
     valid_config = {
         'main': {
             'index_file': 'index.jsonc',
-            'extensions': ['.html', '.txt']
         },
         'output': {
             'dir': 'output_directory',
@@ -190,7 +189,8 @@ def test_validate_config():
         'parser': {
             'begin_doc': '<!--start-->',
             'end_doc': '<!--end-->',
-            'doc_level': 1
+            'doc_level': 1,
+            'extensions': ['.html', '.txt']
         }
     }
 

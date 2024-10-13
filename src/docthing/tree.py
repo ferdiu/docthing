@@ -24,7 +24,11 @@ class TreeNode(ABC):
         Initialize a new TreeNode instance.
         '''
         self.parent = parent
-        self.children = children if children is not None else []
+        self.children = []
+
+        if children is not None:
+            for child in children:
+                self.add_child(child)
 
     def is_root(self):
         '''

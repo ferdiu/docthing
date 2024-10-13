@@ -22,9 +22,9 @@ class PluginManager:
             'HOME') + '/.local/share/docthing/plugins/' + plugin_type
         self.plugins = builtin_plugins
 
-    def load_plugins(self, plugins='all'):
+    def enable_plugins(self, plugins='all'):
         '''
-        Load all plugins from the specified directory.
+        Enable all plugins from the specified directory.
         '''
         if plugins != 'all' and not isinstance(plugins, list):
             if isinstance(plugins, str):
@@ -38,7 +38,7 @@ class PluginManager:
 
         if plugins == 'all':
             for plugin in self.plugins:
-                plugin.load()
+                plugin.enable()
             return
 
         avail_plugins = [p.get_name() for p in self.plugins]
@@ -47,10 +47,10 @@ class PluginManager:
             print('Warning: some plugins were not found: ' +
                   f'{', '.join(unavailable_plugins)}')
 
-        # Load the specified plugins
+        # Enable the specified plugins
         for plugin in self.plugins:
             if plugin.get_name() in plugins:
-                plugin.load()
+                plugin.enable()
 
     def _get_plugins_from_plugin_dir(self):
         res = []
@@ -60,12 +60,18 @@ class PluginManager:
                     res.push(filename)
         return res
 
-    def unload_plugins(self):
+    def get_plugins(self):
         '''
-        Unload all plugins.
+        Return the list of enabled plugins.
+        '''
+        return self.plugins
+
+    def disable_plugins(self):
+        '''
+        Disable all plugins.
         '''
         for plugin in self.plugins:
-            plugin.unload()
+            plugin.disable()
 
     def _load_from_file(self, filepath):
         '''

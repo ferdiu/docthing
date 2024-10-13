@@ -319,10 +319,6 @@ config_schema = Schema({
     # Main section schema
     'main': {
         'index_file': str,                       # index_file is required
-        # extensions is a list of string or a string
-        Optional('extensions'): Or(str, list),
-        # ignores extensions is a list of string or a string
-        Optional('iexts'): Or(str, list),
         # meta values is a list of string or a string
         Optional('meta'): Or(str, list)
     },
@@ -338,6 +334,10 @@ config_schema = Schema({
         'begin_doc': str,                      # begin_doc is a string
         'end_doc': str,                        # end_doc is a string
         'doc_level': int,                      # doc_level is an int
+        # extensions is a list of string or a string
+        Optional('extensions'): Or(str, list),
+        # ignores extensions is a list of string or a string
+        Optional('iexts'): Or(str, list),
         # boolean for single-line comments
         Optional('allow_sl_comments'): bool,
         Optional('peek_lines'): int,           # peek_lines must be an integer

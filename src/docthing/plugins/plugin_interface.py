@@ -7,55 +7,55 @@ class PluginInterface(ABC):
     '''
     Defines the interface for plugins in the docthing application.
 
-    Plugins must implement the `load` and `unload` methods to handle plugin
+    Plugins must implement the `enable` and `disable` methods to handle plugin
     initialization and cleanup, respectively.
     '''
 
-    def __init__(self, config):
+    def __init__(self, documentation_blob):
         '''
-        Initialize the plugin with the provided configuration.
+        Initialize the plugin with the provided DocumentationBlob instance.
         '''
-        self.config = config
-        self.loaded = False
+        self.documentation_blob = documentation_blob
+        self.enabled = False
 
     @abstractmethod
-    def _load(self):
+    def _enable(self):
         '''
-        Load the plugin and perform any necessary initialization.
+        Enable the plugin and perform any necessary initialization.
         Overwrite this method in subclasses to implement plugin-specific
-        initialization. Do not overwrite the `load` (no underscore) method in subclasses.
+        initialization. Do not overwrite the `enable` (no underscore) method in subclasses.
         '''
         pass
 
     @abstractmethod
-    def _unload(self):
+    def _disable(self):
         '''
-        Unload the plugin and perform any necessary cleanup.
+        Disable the plugin and perform any necessary cleanup.
         Overwrite this method in subclasses to implement plugin-specific
-        cleanup. Do not overwrite the `unload` (no underscore) method in subclasses.
+        cleanup. Do not overwrite the `disable` (no underscore) method in subclasses.
         '''
         pass
 
-    def load(self):
+    def enable(self):
         '''
-        Load the plugin and perform any necessary initialization.
+        Enable the plugin and perform any necessary initialization.
         '''
-        print(f'Loading plugin: {self.get_name()}')
-        self._load()
-        self.loaded = True
+        print(f'Enabling plugin: {self.get_name()}')
+        self._enable()
+        self.enabled = True
 
-    def unload(self):
+    def disable(self):
         '''
-        Unload the plugin and perform any necessary cleanup.
+        Disabling the plugin and perform any necessary cleanup.
         '''
-        self._unload()
-        self.loaded = False
+        self._disable()
+        self.enabled = False
 
-    def is_loaded(self):
+    def is_enabled(self):
         '''
         Check if the plugin is loaded.
         '''
-        return self.loaded
+        return self.enabled
 
     @abstractmethod
     def get_name(self):

@@ -3,6 +3,7 @@ This comes from the docthing/util.py file.
 END FILE DOCUMENTATION '''
 
 import os
+import hashlib
 
 
 # =======================
@@ -59,3 +60,10 @@ def parse_value(value_str):
             return float(value_str)
         except ValueError:
             return value_str
+
+
+def sha256sum(string):
+    '''
+    Computes the SHA-256 hash of a given string.
+    '''
+    hashlib.sha256(str.encode(string)).hexdigest()

@@ -10,7 +10,7 @@ from docthing.config import load_config, merge_configs, validate_config
 from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
 from docthing.documentation_blob import DocumentationBlob
 from docthing.plugins.manager import PluginManager
-# from docthing.plugins.exporter. import TODO
+from docthing.plugins.exporter.markdown import MarkdownExporter
 from docthing.plugins.meta_interpreter.plantuml import PlantUMLInterpreter
 
 
@@ -72,12 +72,13 @@ def main():
     # Initialize the plugin manager for MetaInterpreters
     interpreter_manager = PluginManager(
         'meta-interpreter', [PlantUMLInterpreter({})])
-    interpreter_manager.load_plugins(
+    interpreter_manager.enable_plugins(
         config['main']['meta'] if 'meta' in config['main'] else [])
 
     # Initialize the plugin manager for Exporters
-    exporter_manager = PluginManager('exporter', [])
-    exporter_manager.load_plugins(config['output']['type'])
+    exporter_manager = PluginManager(
+        'exporter', [MarkdownExporter({})])
+    exporter_manager.enable_plugins(config['output']['type'])
 
     # extract extensions and ignored extensions
     config['output']['extensions'] = config['output']['extensions'] if 'extensions' in config['output']['type'] else []
@@ -86,10 +87,14 @@ def main():
     # Process the index file and generate the documentation
     blob = DocumentationBlob(
         index_file,
-        config['parser'],
-        config['output']['extensions'],
-        config['output']['iexts'])
-    print(blob)
+        config['parser'])
+
+    blob.unlazy()
+
+    # Output the documentation
+    for exporter in exporter_manager.get_plugins():
+        exporter.export(blob, config['output']['dir'])
+
 
 
 if __name__ == '__main__':

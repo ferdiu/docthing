@@ -15,69 +15,14 @@ END FILE DOCUMENTATION '''
 import json
 import os
 
-from .tree import Tree, TreeNode
-from abc import ABC, abstractmethod
+from docthing.documentation_content import ResourceReference
+from docthing.extractor import extract_documentation
+from docthing.tree import Tree, TreeNode
 
 
-class ResourceReference(ABC):
-    '''
-    A class that represents a reference to a resource.
-    '''
-
-    def __init__(self, path, type, compile_to=None):
-        self.path = path
-        self.type = type
-        self.compile_to = compile_to
-
-    def need_compilation(self):
-        return self.compile_to is not None
-
-    @abstractmethod
-    def _compile(self):
-        pass
-
-    def compile(self):
-        if self.need_compilation():
-            self._compile()
-
-    def __str__(self):
-        return f'@ref({self.type})-->[{self.path}]-->' + \
-            '{' + self.compile_to + '}'
-
-
-class Document():
-    '''
-    A wrapper class for a list of strings or `ResourceReference`s.
-    '''
-
-    def __init__(self, content):
-        if not Document.can_be(content):
-            raise ValueError(
-                'content must be a list of strings or ResourceReferences')
-        self.content = content
-
-    def can_be(vec):
-        if not isinstance(vec, list):
-            return False
-        for el in vec:
-            if not isinstance(
-                    el,
-                    ResourceReference) and not isinstance(
-                    el,
-                    str):
-                return False
-        return True
-
-    def __str__(self):
-        line_count = 0
-        ref_count = 0
-        for el in self.content:
-            if isinstance(el, ResourceReference):
-                ref_count += 1
-            else:
-                line_count += 1
-        return f'Document({line_count} lines, {ref_count} references)'
-
+# =======================
+# DOCUMENTATION BLOB NODE
+# =======================
 
 class DocumentationNode(TreeNode):
     '''
@@ -92,13 +37,14 @@ class DocumentationNode(TreeNode):
             title (str): The title of the node.
             content (str, optional): The content of the node, if it is a file.
             children (list, optional): A list of child nodes, if the node is a chapter, section,
-            directory, or file list.
+                directory, or file list.
+            parser_config (dict): The configuration for the parser.
 
         Raises:
             ValueError: If both `content` and `children` are provided, or if neither is provided.
     '''
 
-    def __init__(self, parent, title, content=None, children=None):
+    def __init__(self, parent, title, content=None, children=None, parser_config=None):
         '''
         Initialize a new DocumentationNode.
 
@@ -106,7 +52,8 @@ class DocumentationNode(TreeNode):
                 title (str): The title of the node.
                 content (str, optional): The content of the node, if it is a file.
                 children (list, optional): A list of child nodes, if the node is a chapter,
-                section, directory, or file list.
+                    section, directory, or file list.
+                parser_config (dict): The configuration for the parser.
 
             Raises:
                 ValueError: If both `content` and `children` are provided, or if neither is
@@ -123,8 +70,12 @@ class DocumentationNode(TreeNode):
             raise ValueError(
                 'content must be None, a path to a file or a ResourceReference')
 
+        if not content is None and parser_config is None:
+            raise ValueError('config must be provided for leaf nodes')
+
         self.title = title
         self.content = content
+        self.parser_config = parser_config
 
         self.lazy = isinstance(
             content, str) and (
@@ -150,15 +101,33 @@ class DocumentationNode(TreeNode):
             return
 
         if os.path.isfile(self.content):
-            with open(self.content, 'r') as f:
-                self.content = f.read()
+            self.content = extract_documentation(self.content, self.parser_config)
         elif os.path.isdir(self.content):
-            self.content = self.content
+            # list all files in the directory with any of the extensions from
+            # self.config['extensions'] but not in self.config['iexts']
+            files = [f for f in os.listdir(self.content)
+                     if os.path.isfile(os.path.join(self.content, f))
+                     and f.split('.')[-1] in self.parser_config['extensions']
+                     and f.split('.')[-1] not in self.parser_config['iexts']]
+            files = [os.path.join(self.content, f) for f in files]
+            self.content = []
+            for f in files:
+                self.content.append(extract_documentation(f, self.parser_config))
         else:
             raise ValueError(
                 f'The content of the node {
                     self.title} is not a file or a directory.')
         self.lazy = False
+
+    def unlazy(self):
+        '''
+        Unlazy the node.
+        '''
+        if self.is_leaf():
+            self._unlazy_content()
+        else:
+            for child in self.children:
+                child.unlazy()
 
     def get_content(self, unlazy=False):
         '''
@@ -198,6 +167,10 @@ class DocumentationNode(TreeNode):
             return __class__.__name__ + '(' + self.title + ')'
 
 
+# =======================
+# DOCUMENTATION BLOB
+# =======================
+
 class DocumentationBlob(Tree):
     '''
     DocumentationBlob is a class that represents a blob of documentation.
@@ -205,15 +178,8 @@ class DocumentationBlob(Tree):
         It can be used to generate documentation in various formats.
     '''
 
-    def __init__(
-            self,
-            index_file,
-            parser_config,
-            extensions,
-            ignored_extensions):
+    def __init__(self, index_file, parser_config):
         self.parser_config = parser_config
-        self.extensions = extensions
-        self.ignored_extensions = ignored_extensions
         self.index_file_path = index_file
 
         super().__init__(self._generate_tree_from_index())
@@ -256,8 +222,7 @@ class DocumentationBlob(Tree):
                     'Quick Start',
                     index_file_json['quick']))
 
-        # It is ok to iterate over dict keys since python 3.6
-        # see:
+        # It is ok to iterate over dict keys since python 3.6; see:
         # https://docs.python.org/3/whatsnew/3.6.html#whatsnew36-compactdict
         for k, v in index_file_json.items():
             if k not in ['main-title', 'intro', 'quick']:
@@ -282,7 +247,7 @@ class DocumentationBlob(Tree):
         '''
         Generate a leaf node.
         '''
-        return DocumentationNode(parent, title, content_file_path)
+        return DocumentationNode(parent, title, content_file_path, None, self.parser_config)
 
     def _generate_node(self, parent, title, node):
         '''
@@ -298,19 +263,17 @@ class DocumentationBlob(Tree):
             return self._generate_leaf(parent, title, node)
         raise ValueError('Invalid node type')
 
+    def unlazy(self):
+        '''
+        Unlazy the tree.
+        '''
+        self.root.unlazy()
 
-# array
-#   title: from chapter/section
-#   children: concatenation of the content of all the nodes
-
-# intro
-#   title: Introduction
-#   content: content of the file pointed by the intro field
-
-# quick
-#   title: Quick Start
-#   content: content of the file pointed by the quick field
-
-# dictionary
-#   title: from chapter/section
-#   children:
+    def is_lazy(self):
+        '''
+        Check if the tree has any lazy nodes.
+        '''
+        for leaf in self.root.get_leaves():
+            if leaf.is_lazy():
+                return True
+        return False

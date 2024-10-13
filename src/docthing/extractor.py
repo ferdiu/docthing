@@ -22,6 +22,10 @@ def extract_documentation(path_to_file, parser_config):
             str or None: The extracted documentation, or None if no documentation
             was found.
     '''
+    if path_to_file.endswith('.md'):
+        with open(path_to_file, 'r') as f:
+            return f.readlines()
+
     res, options = _peek_n_read_if_match(path_to_file, parser_config)
 
     if res is None:
