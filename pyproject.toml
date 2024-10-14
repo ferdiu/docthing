@@ -29,9 +29,18 @@ test = [
   "pytest-cov"
 ]
 
+[project.scripts]
+docthing = "docthing.__main__:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/docthing/**.py", "tests/"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/docthing"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"

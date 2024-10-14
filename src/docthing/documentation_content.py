@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 import re
 
-from docthing.util import sha256sum
+from .util import sha256sum
 
 
 class ResourceReference(ABC):

@@ -2,7 +2,7 @@
     "main-title": "docthing",
     "quick": "README.md",
     "intro": "INTRO.md",
-    "Chapter 1: docthing": "src/docthing.py",
+    "Chapter 1: docthing": "src/docthing/__main__.py",
     "Chapter 2: configuration": "CONFIG-FILE.md",
     "Chapter 3: insights": {
         "DocumentationBlob": "src/docthing/documentation_blob.py",

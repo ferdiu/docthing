@@ -15,9 +15,9 @@ END FILE DOCUMENTATION '''
 import json
 import os
 
-from docthing.documentation_content import Document, ResourceReference
-from docthing.extractor import extract_documentation
-from docthing.tree import Tree, TreeNode
+from .documentation_content import Document, ResourceReference
+from .extractor import extract_documentation
+from .tree import Tree, TreeNode
 
 
 # =======================

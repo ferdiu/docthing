@@ -1,5 +1,5 @@
 
-from docthing.documentation_content import ResourceReference
+from ...documentation_content import ResourceReference
 from ..exporter_interface import Exporter
 
 

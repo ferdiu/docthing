@@ -1,7 +1,7 @@
 
 import os
 
-from docthing.documentation_content import ResourceReference
+from ...documentation_content import ResourceReference
 from ..meta_interpreter_interface import MetaInterpreter
 
 
