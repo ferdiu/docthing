@@ -30,14 +30,6 @@ The `main` section includes general configurations, such as file extensions to p
 > Example:
 > `index_file=docthing.jsonc`
 
-- `exts`: Specifies the file extensions that docthing should process. If directories are provided in the index file, this list will be used to find files to include in the documentation. Multiple extensions can be provided, separated by commas.
-> Example:
-> `extensions=js,jsx,ts,tsx`
-
-- `iexts`: Specifies file extensions to ignore when generating documentation. You can reference previously declared variables here, such as {extensions}.
-> Example:
-> `iexts=test.{extensions}`
-
 - `meta`: Indicates the additional metadata to detect within the files. Markdown is always detected, but you can specify others like plantuml for diagram inclusion.
 > Example:
 > `meta=plantuml`
@@ -69,6 +61,14 @@ The parser section controls how docthing parses the source code for documentatio
 - `doc_level`: Defines the maximum documentation level to extract. A level of 0 indicates no limit. Refer to docthing's documentation for further details.
 > Example:
 > `doc_level=1`
+
+- `exts`: Specifies the file extensions that docthing should process. If directories are provided in the index file, this list will be used to find files to include in the documentation. Multiple extensions can be provided, separated by commas.
+> Example:
+> `extensions=js,jsx,ts,tsx`
+
+- `iexts`: Specifies file extensions to ignore when generating documentation. You can reference previously declared variables here, such as {extensions}.
+> Example:
+> `iexts=test.{extensions}`
 
 - `allow_sl_comments`: This boolean value specifies whether single-line comments are allowed for documentation. By default, only multi-line comments are used.
 > Example:
