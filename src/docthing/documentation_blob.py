@@ -124,8 +124,8 @@ class DocumentationNode(TreeNode):
                         f, self.parser_config))
         else:
             raise ValueError(
-                f'The content of the node {
-                    self.title} is not a file or a directory.')
+                'The content of the node ' +
+                f'{self.title} is not a file or a directory.')
         self.content = Document(self.content)
         self.lazy = False
 

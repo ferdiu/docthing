@@ -40,9 +40,8 @@ class MetaInterpreter(PluginInterface):
         Loads the MetaInterpreter instance by checking if the dependencies are available.
         '''
         if not self.are_dependencies_available():
-            raise Exception(
-                f'''Dependencies for the {
-                    self.get_name()} interpreter are not available.''')
+            raise Exception('Dependencies for the ' +
+                            f'{self.get_name()} interpreter are not available.')
 
     def _disable(self):
         '''

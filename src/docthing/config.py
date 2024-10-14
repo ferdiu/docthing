@@ -138,7 +138,7 @@ def _variable_replace_single(config, host_var_path):
                 handled = True
             else:
                 print(f'Warning: key {inj_var_key} not found ' +
-                      f'in {'.'.join(inj_var_sections)}')
+                      f'in {".".join(inj_var_sections)}')
         else:
             # Injected variable name is in the same scope as the host variable
             host_var_scope = _go_into_scope(config, host_var_sections)
@@ -148,7 +148,7 @@ def _variable_replace_single(config, host_var_path):
                 handled = True
             else:
                 print(f'Warning: key {inj_var_key} not found in ' +
-                      f'{'.'.join(host_var_sections)} nor it is a predefined variable')
+                      f'{".".join(host_var_sections)} nor it is a predefined variable')
 
         # In the case of the source or the variable being a list
         #   it is necessary to convert the output to a list

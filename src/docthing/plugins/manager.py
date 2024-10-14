@@ -45,7 +45,7 @@ class PluginManager:
         unavailable_plugins = [p for p in plugins if p not in avail_plugins]
         if len(unavailable_plugins) > 0:
             print('Warning: some plugins were not found: ' +
-                  f'{', '.join(unavailable_plugins)}')
+                  f'{", ".join(unavailable_plugins)}')
 
         # Enable the specified plugins
         for plugin in self.plugins:
