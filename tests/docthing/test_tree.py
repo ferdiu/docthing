@@ -186,6 +186,69 @@ def test_get_leaves():
     assert grandchild in leaves
     assert child2 in leaves
 
+# Test relative path methods
+
+
+def test_get_path_relative_to_same_node():
+    node = MockTreeNode()
+    assert node.get_path_to(node) == []
+
+
+def test_get_path_relative_to_parent():
+    parent = MockTreeNode()
+    child = MockTreeNode()
+    parent.add_child(child)
+    assert child.get_path_to(parent) == ['.']
+
+
+def test_get_path_relative_to_child():
+    parent = MockTreeNode()
+    child = MockTreeNode()
+    parent.add_child(child)
+    assert parent.get_path_to(child) == [child]
+
+
+def test_get_path_relative_to_sibling():
+    parent = MockTreeNode()
+    child1 = MockTreeNode()
+    child2 = MockTreeNode()
+    parent.add_child(child1)
+    parent.add_child(child2)
+    assert child1.get_path_to(child2) == ['.', child2]
+
+
+def test_get_path_relative_to_sibling_in_non_root():
+    root = MockTreeNode()
+    parent = MockTreeNode()
+    child1 = MockTreeNode()
+    child2 = MockTreeNode()
+    root.add_child(parent)
+    parent.add_child(child1)
+    parent.add_child(child2)
+    assert child1.get_path_to(child2) == ['.', child2]
+
+
+def test_get_path_relative_to_distant_node():
+    root = MockTreeNode()
+    level1_1 = MockTreeNode()
+    level1_2 = MockTreeNode()
+    level2_1 = MockTreeNode()
+    level2_2 = MockTreeNode()
+    root.add_child(level1_1)
+    root.add_child(level1_2)
+    level1_1.add_child(level2_1)
+    level1_2.add_child(level2_2)
+
+    assert level2_1.get_path_to(level2_2) == ['.', '..', level1_2, level2_2]
+
+
+def test_get_path_relative_to_different_trees():
+    tree1 = MockTreeNode()
+    tree2 = MockTreeNode()
+
+    with pytest.raises(ValueError, match='Nodes are not in the same tree'):
+        tree1.get_path_to(tree2)
+
 
 # Test Tree class
 def test_tree_class():

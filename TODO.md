@@ -14,7 +14,7 @@
     - [X] build `DocumentationBlob` instead of dumping `.md` files in the output directory
     - [ ] use `options` inside `DocumentationBlob` when exporting using an `Exporter`
 - refactor:
-    - [ ] `extensions` and `iexts` should be moved into `parser` section
+    - [X] `extensions` and `iexts` should be moved into `parser` section
 
 ### General ideas not implemented nor really designed
 

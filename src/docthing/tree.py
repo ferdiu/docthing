@@ -42,6 +42,15 @@ class TreeNode(ABC):
         '''
         return self.parent
 
+    def get_root(self):
+        '''
+        Get the root node of the tree.
+        '''
+        if self.is_root():
+            return self
+        else:
+            return self.parent.get_root()
+
     def set_parent(self, parent):
         '''
         Set the parent node of the current node.
@@ -221,6 +230,33 @@ class TreeNode(ABC):
             return None
         else:
             return leaves[self_index + 1]
+
+    def get_path_to(self, other_node):
+        '''
+        Get the path from the other_node to the current node.
+        '''
+        if self.get_root() != other_node.get_root():
+            raise ValueError('Nodes are not in the same tree')
+
+        this_path = self.get_path()
+        other_path = other_node.get_path()
+
+        common_prefix = []
+        for i in range(min(len(this_path), len(other_path))):
+            if this_path[i] != other_path[i]:
+                break
+            common_prefix.append(this_path[i])
+
+        relative_path = []
+        # Go up to the common prefix
+        for i in range(len(this_path) - len(common_prefix)):
+            relative_path.append('.' if i == 0 else '..')
+
+        # Go down to the other node
+        for i in range(len(common_prefix), len(other_path)):
+            relative_path.append(other_path[i])
+
+        return relative_path
 
     def to_string(self, prevprefix='', position='first'):
         if position not in ['first', 'middle', 'last']:

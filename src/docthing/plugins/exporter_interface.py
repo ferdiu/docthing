@@ -19,16 +19,19 @@ class Exporter(PluginInterface):
         '''
 
         if documentation_blob.is_lazy():
-            print('Warning: Documentation is lazy. This means that no `meta` ' +\
-                  'plugin was used on it before exporting.')
+            print(
+                'Warning: Documentation is lazy. This means that no `meta` ' +
+                'plugin was used on it before exporting.')
             documentation_blob.unlazy()
 
         plugin_out_dir = os.path.join(output_dir, self.get_name())
 
         mkdir_silent(output_dir)
         for leaf in documentation_blob.get_leaves():
-            leaf_relative_path = os.path.join(*[p.get_title() for p in leaf.get_path()])
-            leaf_complete_path = os.path.join(plugin_out_dir, leaf_relative_path)
+            leaf_relative_path = os.path.join(
+                *[p.get_title() for p in leaf.get_path()])
+            leaf_complete_path = os.path.join(
+                plugin_out_dir, leaf_relative_path)
             mkdir_silent(os.path.dirname(leaf_complete_path))
             self._export_leaf_resources(leaf, leaf_complete_path)
             leaf.replace_resources_with_imports(self.import_function)
@@ -51,9 +54,9 @@ class Exporter(PluginInterface):
         pass
 
     def _export_leaf_resources(self, leaf, output_file_no_ext):
-            '''
-            Exports the resources of a leaf node to the specified format.
-            '''
-            for resource in [l for l in leaf.get_content()
-                             if isinstance(l, ResourceReference)]:
-                resource.write(output_file_no_ext)
+        '''
+        Exports the resources of a leaf node to the specified format.
+        '''
+        for resource in [line for line in leaf.get_content()
+                         if isinstance(line, ResourceReference)]:
+            resource.write(output_file_no_ext)

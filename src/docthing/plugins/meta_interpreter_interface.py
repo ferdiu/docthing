@@ -28,7 +28,7 @@ class MetaInterpreter(PluginInterface):
         '''
         if mode not in ['block', 'begin_file', 'end_file']:
             raise Exception(
-                f'Mode {mode} is not supported. ' +\
+                f'Mode {mode} is not supported. ' +
                 'Please use either \'block\', \'begin_file\' or \'end_file\'.')
 
         super().__init__(config)
@@ -124,16 +124,22 @@ class MetaInterpreter(PluginInterface):
         return first_line, last_line
 
     def interpret_leaf_begin_file(self, leaf):
+        '''
+        Interpret the leaf prepending a resource at the beginning of it.
+        '''
         leaf.get_content().prepend_resource(
             self.generate_resource(leaf))
 
     def interpret_leaf_end_file(self, leaf):
+        '''
+        Interpret the leaf appending a resource to the end of it.
+        '''
         leaf.get_content().append_resource(
             self.generate_resource(leaf))
 
     def interpret_leaf_block(self, leaf):
         '''
-        Interpret the leaf and return the result.
+        Interpret the leaf search for a block of code and return the result.
         '''
         first_line, last_line = self.find_begin_and_end(leaf.get_content())
 
@@ -141,7 +147,7 @@ class MetaInterpreter(PluginInterface):
             return
 
         if last_line is None:
-            print('Warning: reached end of file without finding end of ' +\
+            print('Warning: reached end of file without finding end of ' +
                   f'code ({self.get_name()}): giving up')
 
         if not self._should_keep_beginning():
@@ -155,10 +161,17 @@ class MetaInterpreter(PluginInterface):
             content_last_line = last_line + 1
 
         leaf.get_content().replace_lines_with_reference(
-            self.generate_resource(leaf.get_content()[content_first_line, content_last_line]),
-            first_line, last_line)
+            self.generate_resource(
+                leaf.get_content()[
+                    content_first_line,
+                    content_last_line]),
+            first_line,
+            last_line)
 
     def interpret_leaf(self, leaf):
+        '''
+        Interpret the leaf and return the result.
+        '''
         if self.mode == 'begin_file':
             self.interpret_leaf_begin_file(leaf)
         elif self.mode == 'end_file':

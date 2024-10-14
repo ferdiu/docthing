@@ -5,6 +5,7 @@ END FILE DOCUMENTATION '''
 import os
 import argparse
 
+from docthing.plugins.meta_interpreter.nav import MarkdownNAVInterpreter
 from docthing.util import mkdir_silent
 from docthing.config import load_config, merge_configs, validate_config
 from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
@@ -71,7 +72,7 @@ def main():
 
     # Initialize the plugin manager for MetaInterpreters
     interpreter_manager = PluginManager(
-        'meta-interpreter', [PlantUMLInterpreter({})])
+        'meta-interpreter', [PlantUMLInterpreter({}), MarkdownNAVInterpreter({})])
     interpreter_manager.enable_plugins(
         config['main']['meta'] if 'meta' in config['main'] else [])
 
@@ -79,10 +80,6 @@ def main():
     exporter_manager = PluginManager(
         'exporter', [MarkdownExporter({})])
     exporter_manager.enable_plugins(config['output']['type'])
-
-    # extract extensions and ignored extensions
-    config['output']['extensions'] = config['output']['extensions'] if 'extensions' in config['output']['type'] else []
-    config['output']['iexts'] = config['output']['iexts'] if 'iexts' in config['output']['type'] else []
 
     # Process the index file and generate the documentation
     blob = DocumentationBlob(
@@ -93,12 +90,9 @@ def main():
     for interpreter in interpreter_manager.get_plugins():
         interpreter.interpret(blob)
 
-    print(blob)
-
     # Output the documentation
     for exporter in exporter_manager.get_plugins():
         exporter.export(blob, config['output']['dir'])
-
 
 
 if __name__ == '__main__':

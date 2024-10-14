@@ -1,9 +1,11 @@
 
+import os
+
 from docthing.documentation_content import ResourceReference
-from ..meta_interpreter_interface import MetaInterpreter, InterpretedCode
+from ..meta_interpreter_interface import MetaInterpreter
 
 
-class NAVInterpreter(MetaInterpreter):
+class MarkdownNAVInterpreter(MetaInterpreter):
     '''
     A meta-interpreter for interpreting PlantUML code blocks.
     '''
@@ -41,29 +43,39 @@ class NAVInterpreter(MetaInterpreter):
         res = []
 
         if prev is not None or next is not None:
-            res.append('<div class="nav-buttons">')
+            res.append(
+                '<div class="nav-buttons" style="text-align: center; width: 100%; ' +
+                'border-radius: .5rem; border: 1px solid; padding: 1rem; margin-bottom: 1rem;">')
 
         if prev is not None:
-            return res.append(NAVReference(prev))
+            p = leaf.get_path_to(prev)
+            p = os.path.join(
+                *[n if isinstance(n, str) else n.get_title() for n in p])
+            res.append(MarkdownNAVReference(p))
 
         if prev is not None and next is not None:
-            res.append('')
+            res.append(
+                '<span style="margin-left: 1rem; margin-right: 1rem">-</span>\n')
 
         if next is not None:
-            return res.append(NAVReference(next))
+            p = leaf.get_path_to(next)
+            p = os.path.join(
+                *[n if isinstance(n, str) else n.get_title() for n in p])
+            res.append(MarkdownNAVReference(p))
 
         if prev is not None or next is not None:
             res.append('</div>')
 
         return res
 
-class NAVReference(ResourceReference):
+
+class MarkdownNAVReference(ResourceReference):
     '''
-    A class that represents a reference to a PlantUML diagram.
+    A class that represents a reference to another `markdown` file.
     '''
 
-    def __init__(self, leaf):
-        super().__init__(None, 'import-file', use_hash=leaf.get_title())
+    def __init__(self, path_to_file):
+        super().__init__(None, 'import-file', use_hash=path_to_file)
 
     def get_ext(self):
         return 'md'

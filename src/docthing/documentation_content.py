@@ -15,8 +15,12 @@ class ResourceReference(ABC):
         '''
         Searches for a resource reference in the given line.
 
-        If a reference is found, returns a tuple containing the type and the path of the resource.
-        Otherwise, returns None.
+        If a reference is found, returns a tuple containing the type and the path
+        of the resource. Otherwise, returns None.
+
+        If `use_hash` is specified the resulting path generated when creating the
+        resource will change; see: documentation of `ResourceReference.get_path()`
+        for a more detailed explanation.
         '''
         m = re.search(r'^@ref\((.+)\)-->\[(.+)\]$', line)
         if m is None:
@@ -27,9 +31,13 @@ class ResourceReference(ABC):
     def __init__(self, source, type, use_hash=True):
         self.source = source
         self.type = type
-        self.use_hash = use_hash
-        self.hash = sha256sum(''.join(source))
         self.compiled = None
+        if isinstance(use_hash, bool):
+            self.hash = sha256sum(''.join(source)) if use_hash else None
+        elif isinstance(use_hash, str):
+            self.hash = use_hash
+        else:
+            raise ValueError('use_hash must be a boolean or a string')
 
     def get_source(self):
         '''
@@ -52,21 +60,33 @@ class ResourceReference(ABC):
     def get_path(self):
         '''
         Returns the end of the name of the resource output file (after compilation).
+        This depends on the value passed to `use_hash` when creating the resource
+        reference:
 
-        It is a string with following syntax:
-            _<hash>.<extension>
+        - if `use_hash` was setted to `True` when creating the resource reference,
+        the path will be:
+            `_<hash>.<extension>`
+            (eg. `_1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef.png`)
+        - if `use_hash` was setted to `False` when creating the resource reference,
+        the path will be instead:
+            `.<extension>`
+            (eg. `.png`)
+        - if a `string` was passed to `use_hash` when creating the resource reference,
+        the path will be instead:
+            `<use_hash string>.<extension>`
+            (eg. `test_string.png` if 'test_string' was passed to `use_hash`)
 
-            eg. `_1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef.png`
-
-        If `use_hash` was setted to False when creating the resource reference, the path will be instead:
-            .<extension>
-
-            eg. `.png`
+        Remember that this is not the final path passed to the compiler, but only
+        the ending part of the name of the file that will be generated.
         '''
-        if self.use_hash:
-            return '_' + self.get_hash() + '.' + self.get_ext()
-        else:
-            return '.' + self.get_ext()
+        res = ''
+
+        if isinstance(self.hash, bool) and self.hash:
+            res += '_' + self.get_hash()
+        elif isinstance(self.hash, str):
+            res += self.hash
+
+        return res + '.' + self.get_ext()
 
     @abstractmethod
     def compile(self, output_prefix) -> str | bytes:
@@ -90,6 +110,11 @@ class ResourceReference(ABC):
     def write(self, output_prefix):
         if self.compiled is None:
             self.compiled = self.compile()
+
+        if self.compiled is None:
+            # This is the case where the resource reference does not
+            #    produce any data.
+            return
 
         mode = 'w+'
         if isinstance(self.compiled, bytes):
@@ -138,7 +163,7 @@ class Document():
         elif isinstance(self.content, list):
             return ''.join([str(c) for c in self.content])
         else:
-            raise ValueError('content must be a list of strings or ' +\
+            raise ValueError('content must be a list of strings or ' +
                              'ResourceReferences')
 
     def replace_lines_with_reference(self, reference, begin, end):
@@ -158,24 +183,30 @@ class Document():
             raise ValueError('begin and end must be positive')
 
         if begin > end:
-            raise ValueError(f'begin must be less than or equal to end: ({begin}, {end})')
+            raise ValueError(
+                f'begin must be less than or equal to end: ({begin}, {end})')
 
         if begin >= len(self.content) or end >= len(self.content):
-            raise ValueError('begin and end must be less than the length of the content')
+            raise ValueError(
+                'begin and end must be less than the length of the content')
 
-        self.content = self.content[:begin] + [reference] + self.content[end+1:]
+        self.content = self.content[:begin] + \
+            [reference] + self.content[end + 1:]
 
     def replace_resources_with_imports(self, title, import_function):
         for i, el in enumerate(self.content):
-            if isinstance(el, ResourceReference) or ResourceReference.search(el):
+            if isinstance(
+                    el,
+                    ResourceReference) or ResourceReference.search(el):
                 self.content[i] = import_function(title, el)
 
     def prepend_resource(self, resource):
         if isinstance(resource, list):
             for el in resource:
-                if not isinstance(el, ResourceReference) or isinstance(el, str):
-                    raise ValueError('resources must be all ResourceReferences or strs')
-        if not isinstance(resource, ResourceReference) or isinstance(resource, str):
+                if not isinstance(el, (ResourceReference, str)):
+                    raise ValueError(
+                        'resources must be all ResourceReferences or strs')
+        elif not isinstance(resource, (ResourceReference, str)):
             raise ValueError('resource must be a ResourceReference or a str')
 
         if isinstance(resource, list):
@@ -187,9 +218,10 @@ class Document():
     def append_resource(self, resource):
         if isinstance(resource, list):
             for el in resource:
-                if not isinstance(el, ResourceReference) or isinstance(el, str):
-                    raise ValueError('resources must be all ResourceReferences or strs')
-        if not isinstance(resource, ResourceReference) or isinstance(resource, str):
+                if not isinstance(el, (ResourceReference, str)):
+                    raise ValueError(
+                        'resources must be all ResourceReferences or strs')
+        elif not isinstance(resource, (ResourceReference, str)):
             raise ValueError('resource must be a ResourceReference or a str')
 
         if isinstance(resource, list):

@@ -57,9 +57,11 @@ class MarkdownExporter(Exporter):
     def _img_import(self, leaf_title, resource_path):
         return '!' + self._link_import(leaf_title, resource_path)
 
-    def _import_file_import(self, resource):
-        # TODO: finish implementing import-file staff
-        return f'[{resource.get_title()}](./{resource.get_title() + resource.get_ext()})\n'
+    def _import_file_import(self, resource_path):
+        label = resource_path.split('/')[-1]
+        if label.endswith('.md'):
+            label = label[:-3]
+        return f'<a href="{resource_path}">{label}</a>\n'
 
     def import_function(self, leaf_title, resource):
         if isinstance(resource, ResourceReference):
@@ -68,13 +70,15 @@ class MarkdownExporter(Exporter):
             elif resource.get_type() in ['file', 'link']:
                 return self._link_import(leaf_title, resource.get_path())
             elif resource.get_type() == 'import-file':
-                return self._link_import(resource)
+                return self._import_file_import(resource.get_path())
         elif isinstance(resource, str):
             type, path = ResourceReference.search(resource)
             if type == 'image':
                 return self._img_import(leaf_title, path)
             elif type in ['file', 'link']:
                 return self._link_import(leaf_title, resource.get_path())
+            elif resource.get_type() == 'import-file':
+                return self._import_file_import(resource)
 
         return '<p style="color: red">Unable to determine resource type (' +\
             str(resource) + ')</p>'

@@ -44,7 +44,13 @@ class DocumentationNode(TreeNode):
             ValueError: If both `content` and `children` are provided, or if neither is provided.
     '''
 
-    def __init__(self, parent, title, content=None, children=None, parser_config=None):
+    def __init__(
+            self,
+            parent,
+            title,
+            content=None,
+            children=None,
+            parser_config=None):
         '''
         Initialize a new DocumentationNode.
 
@@ -70,7 +76,7 @@ class DocumentationNode(TreeNode):
             raise ValueError(
                 'content must be None, a path to a file or a ResourceReference')
 
-        if not content is None and parser_config is None:
+        if content is not None and parser_config is None:
             raise ValueError('config must be provided for leaf nodes')
 
         self.title = title
@@ -101,7 +107,8 @@ class DocumentationNode(TreeNode):
             return
 
         if os.path.isfile(self.content):
-            self.content = extract_documentation(self.content, self.parser_config)
+            self.content = extract_documentation(
+                self.content, self.parser_config)
         elif os.path.isdir(self.content):
             # list all files in the directory with any of the extensions from
             # self.config['extensions'] but not in self.config['iexts']
@@ -112,7 +119,9 @@ class DocumentationNode(TreeNode):
             files = [os.path.join(self.content, f) for f in files]
             self.content = []
             for f in files:
-                self.content.append(extract_documentation(f, self.parser_config))
+                self.content.append(
+                    extract_documentation(
+                        f, self.parser_config))
         else:
             raise ValueError(
                 f'The content of the node {
@@ -164,7 +173,7 @@ class DocumentationNode(TreeNode):
         '''
         Replace resources with imports in the content of the node.
         '''
-        if not self.content is None:
+        if self.content is not None:
             self.content.replace_resources_with_imports(
                 self.get_title(), import_function)
 
@@ -256,7 +265,12 @@ class DocumentationBlob(Tree):
         '''
         Generate a leaf node.
         '''
-        return DocumentationNode(parent, title, content_file_path, None, self.parser_config)
+        return DocumentationNode(
+            parent,
+            title,
+            content_file_path,
+            None,
+            self.parser_config)
 
     def _generate_node(self, parent, title, node):
         '''
