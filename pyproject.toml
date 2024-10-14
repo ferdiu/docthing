@@ -21,6 +21,14 @@ dependencies = ["schema"]
 Homepage = "https://github.com/ferdiu/docthing"
 Issues = "https://github.com/ferdiu/docthing/issues"
 
+[project.optional-dependencies]
+dev = ["autopep8"]
+test = [
+  "flake8",
+  "pytest",
+  "pytest-cov"
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

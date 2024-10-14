@@ -218,17 +218,6 @@ class DocumentationBlob(Tree):
 
         res = DocumentationNode(parent, index_file_json['main-title'])
 
-        # Introduction
-        if 'intro' not in index_file_json:
-            print('Warning: index file does not contain \'intro\': this is discouraged: it is ' +
-                  'important to give the user a brief introduction to the project')
-        else:
-            res.add_child(
-                self._generate_leaf(
-                    parent,
-                    'Introduction',
-                    index_file_json['intro']))
-
         # Quick Start
         if 'quick' not in index_file_json:
             print('Warning: index file does not contain \'quick\': this is discouraged: it is ' +
@@ -240,10 +229,21 @@ class DocumentationBlob(Tree):
                     'Quick Start',
                     index_file_json['quick']))
 
+        # Introduction
+        if 'intro' not in index_file_json:
+            print('Warning: index file does not contain \'intro\': this is discouraged: it is ' +
+                  'important to give the user a brief introduction to the project')
+        else:
+            res.add_child(
+                self._generate_leaf(
+                    parent,
+                    'Introduction',
+                    index_file_json['intro']))
+
         # It is ok to iterate over dict keys since python 3.6; see:
         # https://docs.python.org/3/whatsnew/3.6.html#whatsnew36-compactdict
         for k, v in index_file_json.items():
-            if k not in ['main-title', 'intro', 'quick']:
+            if k not in ['main-title', 'quick', 'intro']:
                 res.add_child(self._generate_node(parent, k, v))
 
         return res
