@@ -1,4 +1,6 @@
 
+import os
+
 from ...documentation_content import ResourceReference
 from ..exporter_interface import Exporter
 
@@ -52,13 +54,14 @@ class MarkdownExporter(Exporter):
             f.write(output)
 
     def _link_import(self, leaf_title, resource_path):
-        return f'[{leaf_title}](./{leaf_title + resource_path})\n'
+        return f'[{leaf_title}]({os.path.join('.',
+                                              leaf_title + resource_path)})\n'
 
     def _img_import(self, leaf_title, resource_path):
         return '!' + self._link_import(leaf_title, resource_path)
 
     def _import_file_import(self, resource_path):
-        label = resource_path.split('/')[-1]
+        label = os.path.split(resource_path)[-1]
         if label.endswith('.md'):
             label = label[:-3]
         return f'<a href="{resource_path}">{label}</a>\n'

@@ -3,11 +3,9 @@
 import os
 import importlib.util
 import inspect
-import platform
 
 from .plugin_interface import PluginInterface
-
-SUPPORTED_PLUGIN_TYPES = ['exporter', 'meta-interpreter']
+from ..util import get_docthing_plugin_dir
 
 
 class PluginManager:
@@ -15,12 +13,7 @@ class PluginManager:
         '''
         Initialize the PluginManager with the specified plugin type.
         '''
-        if platform.system() != 'Linux':
-            raise Exception('PluginManager is only supported on Linux.')
-        if plugin_type not in SUPPORTED_PLUGIN_TYPES:
-            raise Exception('Plugin type not supported.')
-        self.plugin_dir = os.environ.get(
-            'HOME') + '/.local/share/docthing/plugins/' + plugin_type
+        self.plugin_dir = get_docthing_plugin_dir(plugin_type)
         self.plugins = builtin_plugins
 
     def enable_plugins(self, plugins='all'):

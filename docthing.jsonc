@@ -2,13 +2,25 @@
     "main-title": "docthing",
     "quick": "README.md",
     "intro": "INTRO.md",
-    "Chapter 1: docthing": "src/docthing/__main__.py",
-    "Chapter 2: configuration": "CONFIG-FILE.md",
-    "Chapter 3: insights": {
-        "DocumentationBlob": "src/docthing/documentation_blob.py",
+    // here a the general functioning of the project should be described
+    "Chapter 1: docthing": {
+        "Usage": "src/docthing/__main__.py",
+        "Examples": "src/docthing/__init__.py"
+    },
+    // here should be presented an in-depth on the configuration file
+    "Chapter 2: configuration": "src/docthing/config.py",
+    // here should be explained how to plugins system works
+    "Chapter 3: plugin development": {
+        "Plugin": "src/docthing/plugins/plugin_interface.py",
+        "Plugin Manager": "src/docthing/plugins/manager.py",
+        "Documentation Tree": "src/docthing/documentation_blob.py",
+        "Documentation Leaf": "src/docthing/documentation_content.py"
+    },
+    // here should be explained how to contribute to the project it-self
+    "Chapter 4: development": {
         "Extractor": "src/docthing/extractor.py",
         "Utils": "src/docthing/util.py",
-        "Constants": "src/docthing/constants.py"
-    },
-    "TODOs": "TODO.md"
+        "Constants": "src/docthing/constants.py",
+        "TODOs": "TODO.md"
+    }
 }

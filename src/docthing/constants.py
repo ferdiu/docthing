@@ -19,7 +19,7 @@ DEFAULT_CONFIG = {
         'meta': 'plantuml'
     },
     'output': {
-        'dir': '{index-file-dir}/documentation',
+        'dir': os.path.join('{index-file-dir}', 'documentation'),
         'type': 'markdown'
     },
     'parser': {
@@ -67,6 +67,8 @@ DEFAULT_CONFIG = {
     },
 }
 
+SUPPORTED_PLUGIN_TYPES = ['exporter', 'meta-interpreter']
+
 
 def index_file_dir(config):
     '''
@@ -88,7 +90,7 @@ def index_file_dir(config):
         print('Warning: using variable index-file-dir before defining `index_file` in `main` section in config file')
         return '{index-file-dir}'
     res = os.path.abspath(os.path.dirname(config['main']['index_file']))
-    return res if res else './'
+    return res if res else os.path.join('.', '')
 
 
 PREDEFINED_VARIABLES = {

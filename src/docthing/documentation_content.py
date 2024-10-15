@@ -133,7 +133,10 @@ class Document():
     A wrapper class for a list of strings or `ResourceReference`s.
     '''
 
-    def __init__(self, content):
+    def __init__(self, content=None):
+        if content is None:
+            self.content = []
+            return
         if not Document.can_be(content):
             raise ValueError(
                 'content must be a list of strings or ResourceReferences')

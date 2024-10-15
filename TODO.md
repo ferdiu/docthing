@@ -7,6 +7,7 @@
     - [X] load only named plugins in `output.type` variable
     - [ ] allow `[meta|<meta-name>]` section in config file
     - [ ] allow `[type|<type-name>]` section in config file
+    - [ ] create a command line option to dump a basic config file
 - doc-parser:
     - [ ] allow the use of `parser.allow_sl_comments`
     - [X] properly handle all cases when reading the `index_file`
@@ -15,6 +16,12 @@
     - [ ] use `options` inside `DocumentationBlob` when exporting using an `Exporter`
 - refactor:
     - [X] `extensions` and `iexts` should be moved into `parser` section
+- documentation:
+    - [ ] finish documentation
+- CI/CD:
+    - [ ] add a possibility to use it as a pre-commit step checking if all files changed form previous commit changed their documentation too (with optional possibility to exit non-zero is so)
+    - [ ] add github action to upload documentation to github wiki
+    - [ ] add gitlab CI to upload documentation to gitlab wiki
 
 ### General ideas not implemented nor really designed
 

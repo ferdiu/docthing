@@ -12,7 +12,7 @@ After being correctly instantiated, a DocumentationBlob can be exported to a spe
 it to the constructor of the `Exporter` implementation.
 END FILE DOCUMENTATION '''
 
-import json
+import pyjson5 as json
 import os
 
 from .documentation_content import Document, ResourceReference

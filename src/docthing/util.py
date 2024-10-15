@@ -4,11 +4,15 @@ END FILE DOCUMENTATION '''
 
 import os
 import hashlib
+import pathlib
+import sys
 
+from .constants import SUPPORTED_PLUGIN_TYPES
 
 # =======================
 # COMMON UTILS
 # =======================
+
 
 def mkdir_silent(output_dir):
     '''
@@ -67,3 +71,49 @@ def sha256sum(string):
     Computes the SHA-256 hash of a given string.
     '''
     return hashlib.sha256(str.encode(string)).hexdigest()
+
+
+def get_datadir() -> pathlib.Path:
+    '''
+    Returns a parent directory path
+    where persistent application data can be stored.
+
+    # linux: ~/.local/share
+    # macOS: ~/Library/Application Support
+    # windows: C:/Users/<USER>/AppData/Roaming
+
+    ref: https://stackoverflow.com/questions/19078969/python-getting-appdata-folder-in-a-cross-platform-way
+    '''
+    home = pathlib.Path.home()
+
+    if sys.platform == 'win32':
+        return home / 'AppData/Roaming'
+    elif sys.platform.startswith('linux'):
+        return home / '.local/share'
+    elif sys.platform == 'darwin':
+        return home / 'Library/Application Support'
+
+
+def get_docthing_datadir():
+    '''
+    Returns the path to the docthing data directory.
+    '''
+    return get_datadir() / 'docthing'
+
+
+def get_docthing_plugin_dir(plugin_type=None):
+    '''
+    Returns the path to the docthing plugin directory.
+
+    This directory should be used to store plugins for docthing
+    inside subdirectories named after the plugin type.
+
+    If `plugin_type` is provided the path to the subdirectory is returned.
+    '''
+    if plugin_type not in SUPPORTED_PLUGIN_TYPES:
+        raise Exception('Plugin type not supported.')
+
+    res = get_docthing_datadir() / 'plugins'
+    if plugin_type:
+        res = res / plugin_type
+    return res
