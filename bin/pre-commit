@@ -11,11 +11,11 @@ echo "!!! Running pre-commit hook !!!"
 echo "1. Enforcing style \`autopep8 --in-place --aggressive --aggressive \"*.py\"\`"
 autopep8 --in-place --aggressive --aggressive $(find . -name "*.py")
 
-echo "Checking for syntax errors \`flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics\`"
-flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+echo "Checking for syntax errors \`flake8 . --select=E9,F63,F7,F82 --show-source --statistics\`"
+flake8 . --select=E9,F63,F7,F82 --show-source --statistics
 
-echo "Exit with error if flake8 fails \`flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics\`"
-flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+echo "Exit with error if flake8 fails \`flake8 . --max-complexity=10 --max-line-length=127 --statistics\`"
+flake8 . --max-complexity=10 --max-line-length=127 --statistics
 
 echo "Running tests \`pytest\`"
 pytest
