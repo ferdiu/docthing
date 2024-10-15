@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION
 The configuration file allows you to control various aspects of how docthing processes
 your source code, including parsing rules, output formats, and file extensions to target.

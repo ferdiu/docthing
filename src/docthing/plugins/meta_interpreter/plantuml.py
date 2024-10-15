@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 
 import subprocess as sp
 from typing import Union

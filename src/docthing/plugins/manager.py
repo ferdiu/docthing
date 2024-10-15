@@ -1,4 +1,7 @@
-
+# SPDX-License-Identifier: MIT
+''' BEGIN FILE DOCUMENTATION (level: 2)
+TODO: manager documentation
+END FILE DOCUMENTATION '''
 
 import os
 import importlib.util

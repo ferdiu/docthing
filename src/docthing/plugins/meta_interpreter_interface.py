@@ -1,4 +1,7 @@
-''' BEGIN FILE DOCUMENTATION (level: 1)
+# SPDX-License-Identifier: MIT
+''' BEGIN FILE DOCUMENTATION (level: 2)
+
+TODO: meta_interpreter_interface documentation
 
 This comes from the `docthing/plugins/meta_interpreter.py` file.
 

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 import pytest
 from docthing.tree import TreeNode, Tree
 

@@ -1,5 +1,6 @@
-''' BEGIN FILE DOCUMENTATION
-This comes from the docthing/util.py file.
+# SPDX-License-Identifier: MIT
+''' BEGIN FILE DOCUMENTATION (level: 3)
+TODO: util documentation
 END FILE DOCUMENTATION '''
 
 import os

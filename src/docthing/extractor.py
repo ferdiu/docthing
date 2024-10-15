@@ -1,14 +1,8 @@
-''' BEGIN FILE DOCUMENTATION
-
-## Example plantuml:
-
-@startuml
-Bob -> Alice : hello
-@enduml
-
-And here some text just to check if everything is working properly after the inclusion of an external resource file.
-
+# SPDX-License-Identifier: MIT
+''' BEGIN FILE DOCUMENTATION (level: 3)
+TODO: extractor documentation
 END FILE DOCUMENTATION '''
+
 
 import re
 import os

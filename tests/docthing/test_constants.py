@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 
 from unittest.mock import patch
 from docthing.constants import DEFAULT_CONFIG, PREDEFINED_VARIABLES, index_file_dir, _c_like_languages_parser_config

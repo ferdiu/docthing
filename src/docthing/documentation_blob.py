@@ -1,4 +1,7 @@
+# SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 2)
+TODO: documentation_blob documentation
+
 Everything in `docthing` is about the class [`DocumentationBlob`](@DocumentationBlob).
 
 This class is the one create after the _index file_ is processed accordingly to the _configuration_.

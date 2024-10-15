@@ -1,4 +1,7 @@
-
+# SPDX-License-Identifier: MIT
+''' BEGIN FILE DOCUMENTATION (level: 2)
+TODO: documentation_content documentation
+END FILE DOCUMENTATION '''
 
 import re
 from abc import ABC, abstractmethod

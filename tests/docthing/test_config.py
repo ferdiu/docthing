@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 import pytest
 from unittest.mock import patch, mock_open
 from docthing.config import _variable_replace_single, merge_configs, load_config

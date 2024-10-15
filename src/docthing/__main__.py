@@ -1,5 +1,26 @@
+# SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 1)
-This comes from the docthing.py file.
+This script is used to generate documentation for a project. It takes a
+configuration file and an index file as input and generates a documentation
+directory with the documentation.
+
+## Command-line arguments
+
+The script accepts the following command-line arguments:
+- `index_file`: The path to the index file (this is the only positional argument).
+- `-c`, `--config`: The path to the configuration file.
+- `-o`, `--outdir`: The path to the output directory.
+- `-h`, `--help`: Show the help message and exit.
+
+Alternatievly the `index_file` can be a directory containing a
+`docthing.jsonc` file which will be used as `index_file`.
+
+If no configuration file is provided, the default configuration file
+`docthing.conf` will be looked up in the current directory. If found
+it will be used otherwise the default configuration will be used instead.
+
+If no `outdir` is specified, the default output directory `documentation`
+will be used.
 END FILE DOCUMENTATION '''
 
 import os

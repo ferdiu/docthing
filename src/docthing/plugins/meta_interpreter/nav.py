@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 
 import os
 from typing import Union

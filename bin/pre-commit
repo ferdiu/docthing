@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# SPDX-License-Identifier: MIT
+
 set -e
 
 if [ -d ".git" ] && [ ! -e ".git/hooks/pre-commit" ]; then
@@ -31,9 +33,26 @@ echo
 
 # TODO: increase required coverate to al least 90
 echo "5. Running coverage \`pytest-cov\`"
-pytest --cov src --cov-fail-under 25
+pytest --cov src --cov-fail-under 35
 echo
 
-echo "6. The pre-commit hook has finished successfully!"
+# SPDX-License-Identifier:
+echo "6. Check SPDX-License-Identifier is present in all source code file:"
+c=0
+for file in $(find . -name "*.py"); do
+    if ! grep -q "SPDX-License-Identifier" "$file"; then
+        echo "SPDX-License-Identifier is missing in $file"
+        c=$(($c + 1))
+    fi
+done
+if [ $c -gt 0 ]; then
+    echo "SPDX-License-Identifier is missing in $c source code files"
+    exit $c
+else
+    echo "SPDX-License-Identifier is present in all source code file"
+fi
+echo
+
+echo "7. The pre-commit hook has finished successfully!"
 echo "Bye ;)"
 echo

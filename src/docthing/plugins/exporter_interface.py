@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: MIT
+''' BEGIN FILE DOCUMENTATION (level: 2)
+TODO: exporter_interface documentation
+END FILE DOCUMENTATION '''
 
 from abc import abstractmethod
 import os
