@@ -1,5 +1,6 @@
 
 import os
+from typing import Union
 
 from ...documentation_content import ResourceReference
 from ..meta_interpreter_interface import MetaInterpreter
@@ -80,5 +81,5 @@ class MarkdownNAVReference(ResourceReference):
     def get_ext(self):
         return 'md'
 
-    def compile(self) -> str | bytes:
+    def compile(self) -> Union[bytes, str]:
         return None

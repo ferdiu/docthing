@@ -1,7 +1,8 @@
 
 
-from abc import ABC, abstractmethod
 import re
+from abc import ABC, abstractmethod
+from typing import Union
 
 from .util import sha256sum
 
@@ -89,7 +90,7 @@ class ResourceReference(ABC):
         return res + '.' + self.get_ext()
 
     @abstractmethod
-    def compile(self, output_prefix) -> str | bytes:
+    def compile(self, output_prefix) -> Union[bytes, str]:
         '''
         Compiles the resource reference.
 

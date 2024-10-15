@@ -1,5 +1,6 @@
 
 import subprocess as sp
+from typing import Union
 
 from ...documentation_content import ResourceReference
 from ..meta_interpreter_interface import MetaInterpreter
@@ -50,7 +51,7 @@ class PlantUMLReference(ResourceReference):
     def get_ext(self):
         return 'png'
 
-    def compile(self) -> str | bytes:
+    def compile(self) -> Union[bytes, str]:
         try:
             completed_process = sp.run(
                 ['plantuml', '-tpng', '-pipe'],
