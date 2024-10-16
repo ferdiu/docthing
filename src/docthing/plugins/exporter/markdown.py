@@ -55,8 +55,8 @@ class MarkdownExporter(Exporter):
             f.write(output)
 
     def _link_import(self, leaf_title, resource_path):
-        return f'[{leaf_title}]({os.path.join(".",
-                                              leaf_title + resource_path)})\n'
+        return f'[{leaf_title}](' +\
+            os.path.join(".", leaf_title + resource_path) + ')\n'
 
     def _img_import(self, leaf_title, resource_path):
         return '!' + self._link_import(leaf_title, resource_path)
