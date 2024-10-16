@@ -171,7 +171,8 @@ def is_begin(line, regex_ml, regex_sl, is_sl):
             is_sl (bool): (input-output parameter) Whether the single-line regex
             should be used. If False, the multiline regex is used.
     '''
-    # If the value of is_sl was already set this means the begin was already found!
+    # If the value of is_sl was already set this means the begin was already
+    # found!
     if is_sl is not None:
         return False, is_sl
 
@@ -243,6 +244,7 @@ def _peek_n_read_if_match(path_to_file, parser_config):
     end_regex_ml, end_regex_sl = _regex_end_documentation(current_config)
 
     is_sl = None
+
     def _is_begin(line):
         nonlocal is_sl
         res, is_sl = is_begin(line, begin_regex_ml, begin_regex_sl, is_sl)

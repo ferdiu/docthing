@@ -86,7 +86,7 @@ class DocumentationNode(TreeNode):
         self.content = content
         self.parser_config = parser_config
 
-        self.options = { 'level': 0, 'level-only': False }
+        self.options = {'level': 0, 'level-only': False}
 
         self.lazy = isinstance(
             content, str) and (

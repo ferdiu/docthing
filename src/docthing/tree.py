@@ -287,7 +287,10 @@ class TreeNode(ABC):
 
         return result
 
-    def prune(self, prune_condition=lambda node: True, prune_internal_to_leaf=False):
+    def prune(
+            self,
+            prune_condition=lambda node: True,
+            prune_internal_to_leaf=False):
         '''
         Prune the tree based on a prune condition.
 
@@ -389,7 +392,10 @@ class Tree(TreeNode):
     def to_string(self, prefix=''):
         return self.get_root().to_string()
 
-    def prune(self, prune_condition=lambda node: True, prune_internal_to_leaf=False):
+    def prune(
+            self,
+            prune_condition=lambda node: True,
+            prune_internal_to_leaf=False):
         self.get_root().prune(prune_condition, prune_internal_to_leaf)
 
     def __str__(self):
