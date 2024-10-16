@@ -260,6 +260,7 @@ def test_prune_leaf_node():
     child.prune()
     assert len(root.children) == 0
 
+
 def test_prune_subtree():
     root = MockTreeNode()
     child1 = MockTreeNode()
@@ -272,6 +273,7 @@ def test_prune_subtree():
     child1.prune()
     assert len(root.children) == 1
     assert root.get_size() == 2
+
 
 def test_prune_with_condition():
     root = MockTreeNode()
@@ -289,6 +291,7 @@ def test_prune_with_condition():
     assert len(child1.children) == 0
     assert len(child2.children) == 0
 
+
 def test_prune_root():
     root = MockTreeNode()
     child = MockTreeNode()
@@ -297,10 +300,12 @@ def test_prune_root():
     root.prune()
     assert root.is_leaf()
 
+
 def test_prune_empty_tree():
     root = MockTreeNode()
     root.prune(lambda node: False)
     assert root.is_leaf()
+
 
 def test_prune_all_nodes():
     root = MockTreeNode()
@@ -312,7 +317,6 @@ def test_prune_all_nodes():
     root.prune(lambda node: True)
     print(root)
     assert root.is_leaf()
-
 
 
 # Test Tree class

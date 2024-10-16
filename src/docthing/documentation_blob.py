@@ -86,6 +86,8 @@ class DocumentationNode(TreeNode):
         self.content = content
         self.parser_config = parser_config
 
+        self.options = { 'level': 0, 'level-only': False }
+
         self.lazy = isinstance(
             content, str) and (
             os.path.isfile(content) or os.path.isdir(content))
@@ -110,8 +112,10 @@ class DocumentationNode(TreeNode):
             return
 
         if os.path.isfile(self.content):
-            self.content = extract_documentation(
-                self.content, self.parser_config)
+            self.content, options = extract_documentation(self.content,
+                                                          self.parser_config)
+            for k, v in options.items():
+                self.options[k] = v
         elif os.path.isdir(self.content):
             # list all files in the directory with any of the extensions from
             # self.config['extensions'] but not in self.config['iexts']
@@ -121,10 +125,12 @@ class DocumentationNode(TreeNode):
                      and f.split('.')[-1] not in self.parser_config['iexts']]
             files = [os.path.join(self.content, f) for f in files]
             self.content = []
-            for f in files:
-                self.content.append(
-                    extract_documentation(
-                        f, self.parser_config))
+            for i_f, f in enumerate(files):
+                doc, opts = extract_documentation(f, self.parser_config)
+                self.content.append(doc)
+                # Only options from the first file are kept
+                if i_f == 0:
+                    self.options = opts
         else:
             raise ValueError(
                 'The content of the node ' +
@@ -171,6 +177,15 @@ class DocumentationNode(TreeNode):
                 str: The title of the node.
         '''
         return self.title
+
+    def get_options(self):
+        '''
+        Get the options of the node.
+
+            Returns:
+                dict: The options of the node.
+        '''
+        return self.options
 
     def replace_resources_with_imports(self, import_function):
         '''
@@ -303,3 +318,36 @@ class DocumentationBlob(Tree):
             if leaf.is_lazy():
                 return True
         return False
+
+    def prune_doc_level(self, level=0):
+        '''
+        Prunes the documentation level of the documentation blob based on the
+        provided level.
+
+        Documentation nodes that are at the specified level or lower will be kept.
+        Other nodes will be pruned.
+
+        If a node has the option `level-only` enabled this will be kept only if the
+        level is exactly the specified level.
+        '''
+        def _prune_function(node):
+            # Prune internal nodes left with no children...
+            if node.get_content() is None and len(node.get_children()) == 0:
+                return True
+            # ... do not prune it otherwise
+            if node.get_content() is None:
+                return False
+            node_level = node.get_content().get_options().get('level', 0)
+            is_level_only = node.get_content().get_options().get('level-only', False)
+            if node_level > level:
+                # Always prune if node level is greater
+                return True
+            elif node_level == level:
+                # Never prune if the node level is the same
+                return False
+            else:
+                # Prune only if the level-only option was specified
+                #   and the node level is lower
+                return is_level_only
+
+        self.prune(_prune_function, prune_internal_to_leaf=True)

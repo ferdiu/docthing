@@ -24,13 +24,15 @@ def extract_documentation(path_to_file, parser_config):
             parser_config (dict): The parser configuration dictionary to use for
             extracting the documentation.
 
-        Returns:
-            str or None: The extracted documentation, or None if no documentation
-            was found.
+        Returns a tuple:
+            first element is a str or None: The extracted documentation, or None if no
+            documentation was found.
+            second element is a dict or None: The extracted options, or None if no
+            documentation was found.
     '''
     if path_to_file.endswith('.md'):
         with open(path_to_file, 'r') as f:
-            return f.readlines()
+            return f.readlines(), {}
 
     res, options = _peek_n_read_if_match(path_to_file, parser_config)
 
@@ -39,7 +41,7 @@ def extract_documentation(path_to_file, parser_config):
             'Warning: no documentation found correspondig to path ' +
             path_to_file)
 
-    return res
+    return res, options
 
 
 # =======================
@@ -166,11 +168,12 @@ def is_begin(line, regex_ml, regex_sl, is_sl):
             multiline documentation block.
             regex_sl (re.Pattern): The regular expression to match the begin of a
             single-line documentation block.
-            is_sl (bool): Whether the single-line regex should be used. If False,
-            the multiline regex is used.
+            is_sl (bool): (input-output parameter) Whether the single-line regex
+            should be used. If False, the multiline regex is used.
     '''
+    # If the value of is_sl was already set this means the begin was already found!
     if is_sl is not None:
-        return False
+        return False, is_sl
 
     ml_match = re.search(regex_ml, line)
     sl_match = re.search(regex_sl, line) if regex_sl else None
@@ -184,7 +187,7 @@ def is_begin(line, regex_ml, regex_sl, is_sl):
     # if neither is found (setting it to none in the `else` case is wrong
     # since it would override the previous value)
 
-    return ml_match or sl_match
+    return ml_match or sl_match, is_sl
 
 
 def is_end(line, regex_ml, regex_sl, is_sl):
@@ -204,10 +207,10 @@ def is_end(line, regex_ml, regex_sl, is_sl):
     '''
     # matches just one between ml and sl based on what is_begin found
     if is_sl is True:
-        return re.search(regex_sl, line)
+        return re.search(regex_sl, line), is_sl
     elif is_sl is False:
-        return re.search(regex_ml, line)
-    return False
+        return re.search(regex_ml, line), is_sl
+    return False, is_sl
 
 
 # =======================
@@ -240,12 +243,15 @@ def _peek_n_read_if_match(path_to_file, parser_config):
     end_regex_ml, end_regex_sl = _regex_end_documentation(current_config)
 
     is_sl = None
-
     def _is_begin(line):
-        return is_begin(line, begin_regex_ml, begin_regex_sl, is_sl)
+        nonlocal is_sl
+        res, is_sl = is_begin(line, begin_regex_ml, begin_regex_sl, is_sl)
+        return res
 
     def _is_end(line):
-        return is_end(line, end_regex_ml, end_regex_sl, is_sl)
+        nonlocal is_sl
+        res, is_sl = is_end(line, end_regex_ml, end_regex_sl, is_sl)
+        return res
 
     with open(path_to_file) as input_file:
         # Peek the first `line_number` lines

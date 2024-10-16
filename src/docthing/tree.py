@@ -287,7 +287,7 @@ class TreeNode(ABC):
 
         return result
 
-    def prune(self, prune_condition=lambda node: True):
+    def prune(self, prune_condition=lambda node: True, prune_internal_to_leaf=False):
         '''
         Prune the tree based on a prune condition.
 
@@ -300,6 +300,11 @@ class TreeNode(ABC):
 
         Note: when called on a root, it will behave like the prune_condition
         was False (will call prune on all children).
+
+        if prune_internal_to_leaf is True, the function will check condition again
+        after the children removal. If the condition is met, the node will be
+        pruned again. This can be really helpful when pruning a tree where all
+        internal nodes should be pruned if they become leaves.
         '''
         if prune_condition(self) and self.parent is not None:
             self.parent.remove_child(self)
@@ -311,6 +316,9 @@ class TreeNode(ABC):
                 # If the child was pruned, we don't want to increment i
                 if not will_prune:
                     i += 1
+
+            if prune_internal_to_leaf and prune_condition(self):
+                self.prune(prune_condition, prune_internal_to_leaf=False)
 
     @abstractmethod
     def __str__(self) -> str:
@@ -380,6 +388,9 @@ class Tree(TreeNode):
 
     def to_string(self, prefix=''):
         return self.get_root().to_string()
+
+    def prune(self, prune_condition=lambda node: True, prune_internal_to_leaf=False):
+        self.get_root().prune(prune_condition, prune_internal_to_leaf)
 
     def __str__(self):
         return self.get_root().to_string()
