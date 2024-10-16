@@ -154,6 +154,62 @@ def _parse_options(line):
     return res
 
 
+def is_begin(line, regex_ml, regex_sl, is_sl):
+    '''
+    Checks if the given line matches the beginning of a documentation block based
+    on the provided regular expressions and the current state of the documentation
+    block.
+
+        Args:
+            line (str): The line to be checked.
+            regex_ml (re.Pattern): The regular expression to match the begin of a
+            multiline documentation block.
+            regex_sl (re.Pattern): The regular expression to match the begin of a
+            single-line documentation block.
+            is_sl (bool): Whether the single-line regex should be used. If False,
+            the multiline regex is used.
+    '''
+    if is_sl is not None:
+        return False
+
+    ml_match = re.search(regex_ml, line)
+    sl_match = re.search(regex_sl, line) if regex_sl else None
+
+    # multiline takes precedence over single line
+    if ml_match:
+        is_sl = False
+    elif sl_match:
+        is_sl = True
+    # NOTE: the `else` case is intentionally left out to let is_sl be None
+    # if neither is found (setting it to none in the `else` case is wrong
+    # since it would override the previous value)
+
+    return ml_match or sl_match
+
+
+def is_end(line, regex_ml, regex_sl, is_sl):
+    '''
+    Checks if the given line matches the end of a documentation block based on
+    the provided regular expressions and the current state of the documentation
+    block.
+
+        Args:
+            line (str): The line to be checked.
+            regex_ml (re.Pattern): The regular expression to match the end of a
+            multiline documentation block.
+            regex_sl (re.Pattern): The regular expression to match the end of a
+            single-line documentation block.
+            is_sl (bool): Whether the single-line regex should be used. If False,
+            the multiline regex is used.
+    '''
+    # matches just one between ml and sl based on what is_begin found
+    if is_sl is True:
+        return re.search(regex_sl, line)
+    elif is_sl is False:
+        return re.search(regex_ml, line)
+    return False
+
+
 # =======================
 # IO
 # =======================
@@ -184,34 +240,12 @@ def _peek_n_read_if_match(path_to_file, parser_config):
     end_regex_ml, end_regex_sl = _regex_end_documentation(current_config)
 
     is_sl = None
-    def is_begin(line):
-        nonlocal is_sl
 
-        if not is_sl is None:
-            return False
+    def _is_begin(line):
+        return is_begin(line, begin_regex_ml, begin_regex_sl, is_sl)
 
-        ml_match = re.search(begin_regex_ml, line)
-        sl_match = re.search(begin_regex_sl, line) if begin_regex_sl else None
-
-        # multiline takes precedence over single line
-        if ml_match:
-            is_sl = False
-        elif sl_match:
-            is_sl = True
-        # NOTE: the `else` case is intentionally left out to let is_sl be None
-        # if neither is found (setting it to none in the `else` case is wrong
-        # since it would override the previous value)
-
-        return ml_match or sl_match
-
-    def is_end(line):
-        nonlocal is_sl
-        # matches just one between ml and sl based on what is_begin found
-        if is_sl is True:
-            return re.search(end_regex_sl, line)
-        elif is_sl is False:
-            return re.search(end_regex_ml, line)
-        return False
+    def _is_end(line):
+        return is_end(line, end_regex_ml, end_regex_sl, is_sl)
 
     with open(path_to_file) as input_file:
         # Peek the first `line_number` lines
@@ -219,7 +253,7 @@ def _peek_n_read_if_match(path_to_file, parser_config):
                           for _ in range(current_config['peek_lines'])]
 
         first_line_index = [i for i, line in enumerate(
-            document_lines) if is_begin(line)]
+            document_lines) if _is_begin(line)]
 
         # If none of the lines match the begin_regex, return None
         if len(first_line_index) == 0:
@@ -237,13 +271,14 @@ def _peek_n_read_if_match(path_to_file, parser_config):
             try:
                 line = next(input_file)
                 document_lines.append(_remove_sl_comment(line, current_config))
-                if is_end(line):
+                if _is_end(line):
                     break
                 last_line_index += 1
             except StopIteration:
-                print('Warning: reached end of file before end of documentation: ' +\
-                      'this usually means that the documentation is not properly ' +\
-                      'closed or the entire file contains only documentation')
+                print(
+                    'Warning: reached end of file before end of documentation: ' +
+                    'this usually means that the documentation is not properly ' +
+                    'closed or the entire file contains only documentation')
                 break
 
-        return document_lines[first_line_index:last_line_index+1], options
+        return document_lines[first_line_index:last_line_index + 1], options
