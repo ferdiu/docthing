@@ -1,6 +1,6 @@
 [project]
 name = "docthing"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   { name="Federico Manzella", email="ferdiu.cow.a.bunga@gmail.com" },
 ]
