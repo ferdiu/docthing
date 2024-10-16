@@ -8,7 +8,7 @@ from docthing.tree import TreeNode, Tree
 
 class MockTreeNode(TreeNode):
     def __str__(self):
-        return "TestNode()"
+        return "MockTreeNode()"
 
 # Test TreeNode Initialization
 
@@ -250,6 +250,69 @@ def test_get_path_relative_to_different_trees():
 
     with pytest.raises(ValueError, match='Nodes are not in the same tree'):
         tree1.get_path_to(tree2)
+
+
+def test_prune_leaf_node():
+    root = MockTreeNode()
+    child = MockTreeNode()
+    root.add_child(child)
+
+    child.prune()
+    assert len(root.children) == 0
+
+def test_prune_subtree():
+    root = MockTreeNode()
+    child1 = MockTreeNode()
+    child2 = MockTreeNode()
+    grandchild = MockTreeNode()
+    root.add_child(child1)
+    root.add_child(child2)
+    child1.add_child(grandchild)
+
+    child1.prune()
+    assert len(root.children) == 1
+    assert root.get_size() == 2
+
+def test_prune_with_condition():
+    root = MockTreeNode()
+    child1 = MockTreeNode()
+    child2 = MockTreeNode()
+    grandchild1 = MockTreeNode()
+    grandchild2 = MockTreeNode()
+    root.add_child(child1)
+    root.add_child(child2)
+    child1.add_child(grandchild1)
+    child1.add_child(grandchild2)
+
+    root.prune(lambda node: node.get_depth() % 2 == 0)
+    assert len(root.children) == 2
+    assert len(child1.children) == 0
+    assert len(child2.children) == 0
+
+def test_prune_root():
+    root = MockTreeNode()
+    child = MockTreeNode()
+    root.add_child(child)
+
+    root.prune()
+    assert root.is_leaf()
+
+def test_prune_empty_tree():
+    root = MockTreeNode()
+    root.prune(lambda node: False)
+    assert root.is_leaf()
+
+def test_prune_all_nodes():
+    root = MockTreeNode()
+    child1 = MockTreeNode()
+    child2 = MockTreeNode()
+    root.add_child(child1)
+    root.add_child(child2)
+
+    root.prune(lambda node: True)
+    print(root)
+    assert root.is_leaf()
+
 
 
 # Test Tree class

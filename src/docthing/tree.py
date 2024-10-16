@@ -287,6 +287,31 @@ class TreeNode(ABC):
 
         return result
 
+    def prune(self, prune_condition=lambda node: True):
+        '''
+        Prune the tree based on a prune condition.
+
+        If prune_condition is no specified, the tree will be pruned by removing the
+        whole subtree including the node itself.
+        Otherwise, prune_condition has to be a function that takes a node as
+        input and returns a boolean value. The node will be pruned if the function
+        returns True. If the prune_condition is not met, the function will be
+        called recursively on the children of the node.
+
+        Note: when called on a root, it will behave like the prune_condition
+        was False (will call prune on all children).
+        '''
+        if prune_condition(self) and self.parent is not None:
+            self.parent.remove_child(self)
+        else:
+            i = 0
+            while i < len(self.children):
+                will_prune = prune_condition(self.children[i])
+                self.children[i].prune(prune_condition)
+                # If the child was pruned, we don't want to increment i
+                if not will_prune:
+                    i += 1
+
     @abstractmethod
     def __str__(self) -> str:
         pass
