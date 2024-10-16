@@ -47,7 +47,8 @@ class MarkdownNAVInterpreter(MetaInterpreter):
         if prev is not None or next is not None:
             res.append(
                 '<div class="nav-buttons" style="text-align: center; width: 100%; ' +
-                'border-radius: .5rem; border: 1px solid; padding: 1rem; margin-bottom: 1rem;">')
+                'border-radius: .5rem; border: 1px solid; padding: 1rem; ' +\
+                'margin-bottom: 1rem; display: flex; justify-content: space-between">')
 
         if prev is not None:
             p = leaf.get_path_to(prev)

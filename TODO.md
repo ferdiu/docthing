@@ -9,7 +9,7 @@
     - [ ] allow `[type|<type-name>]` section in config file
     - [ ] create a command line option to dump a basic config file
 - doc-parser:
-    - [ ] allow the use of `parser.allow_sl_comments`
+    - [X] allow the use of `parser.allow_sl_comments`
     - [X] properly handle all cases when reading the `index_file`
 - general:
     - [X] build `DocumentationBlob` instead of dumping `.md` files in the output directory

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 3)
+Other testing lines
 TODO: extractor documentation
 END FILE DOCUMENTATION '''
 
@@ -45,58 +46,76 @@ def extract_documentation(path_to_file, parser_config):
 # REGULAR EXPRESSIONS
 # =======================
 
-def _regex_begin_documentation(ext, parser_config):
+def _regex_begin_documentation(parser_config):
     '''
     Generates a regular expression to match the end of a documentation block based
     on the provided parser configuration.
 
         Args:
-            ext (str): The file extension to use for the parser configuration.
             parser_config (dict): The parser configuration dictionary.
 
         Returns:
-            re.Pattern: A compiled regular expression pattern that matches the end
-            of a documentation block, or None if no parser configuration is found
-            for the given extension.
+            A tuple of re.Pattern both matching the beginning of the documentation:
+            the first is the one used to match multiline comments, the second is
+            the one used to match single line comments.
+            If `allow_sl_comments` is False, the second is None.
     '''
-    if ext not in parser_config:
-        print('Warning: no parser configuration for extension ' + ext)
-        return None
-
-    if 'allow_sl_comments' in parser_config and parser_config['allow_sl_comments']:
-        # TODO: implement support for single line comments
-        raise ValueError('allow_sl_comments is not supported yet')
-    else:
-        res = '^' + parser_config[ext]['begin_ml_comment'] + \
+    sl_comment_regex = None
+    if _does_allow_sl_comments(parser_config):
+        res = '^' + parser_config['sl_comment'] + \
             ' *' + parser_config['begin_doc'] + ' *(\\(.*\\))? *$'
-        return re.compile(res)
+        sl_comment_regex = re.compile(res)
+
+    res = '^' + parser_config['begin_ml_comment'] + \
+        ' *' + parser_config['begin_doc'] + ' *(\\(.*\\))? *$'
+
+    return re.compile(res), sl_comment_regex
 
 
-def _regex_end_documentation(ext, parser_config):
+def _regex_end_documentation(parser_config):
     '''
     Generates a regular expression to match the end of a documentation block based
     on the provided parser configuration.
 
         Args:
-            ext (str): The file extension to use for the parser configuration.
             parser_config (dict): The parser configuration dictionary.
 
         Returns:
-            re.Pattern: A compiled regular expression pattern that matches the end
-            of a documentation block, or None if no parser configuration is found
-            for the given extension.
+            A tuple of re.Pattern both matching the ending of the documentation:
+            the first is the one used to match multiline comments, the second is
+            the one used to match single line comments.
+            If `allow_sl_comments` is False, the second is None.
     '''
-    if ext not in parser_config:
-        print('Warning: no parser configuration for extension ' + ext)
-        return None
+    sl_comment_regex = None
+    if _does_allow_sl_comments(parser_config):
+        res = '^' + parser_config['sl_comment'] + \
+            ' *' + parser_config['end_doc'] + ' *$'
+        sl_comment_regex = re.compile(res)
 
-    if 'allow_sl_comments' in parser_config and parser_config['allow_sl_comments']:
-        # TODO: implement support for single line comments
-        raise ValueError('allow_sl_comments is not supported yet')
-    else:
-        res = '^ *' + parser_config['end_doc'] + ' *' + \
-            parser_config[ext]['end_ml_comment'] + ' *$'
-        return re.compile(res)
+    res = '^ *' + parser_config['end_doc'] + ' *' + \
+        parser_config['end_ml_comment'] + ' *$'
+    return re.compile(res), sl_comment_regex
+
+
+def _remove_sl_comment(line, parser_config):
+    '''
+    Removes the single-line comment from the given line using `sl_comment` if
+    the `allow_sl_comments` option is enabled in the parser configuration.
+
+    Please, note that exaxtly one space is matched after the `sl_comment`
+    character(s).
+    '''
+    if not _does_allow_sl_comments(parser_config):
+        return line
+
+    return re.sub('^' + parser_config['sl_comment'] + ' ', '', line)
+
+
+def _does_allow_sl_comments(parser_config):
+    '''
+    Checks if single-line comments are allowed in the current parser configuration.
+    '''
+    return 'allow_sl_comments' in parser_config and parser_config['allow_sl_comments']
 
 
 # =======================
@@ -154,16 +173,53 @@ def _peek_n_read_if_match(path_to_file, parser_config):
             documentation block is found.
     '''
     ext = os.path.splitext(path_to_file)[1].replace('.', '')
-    begin_regex = _regex_begin_documentation(ext, parser_config)
-    end_regex = _regex_end_documentation(ext, parser_config)
+
+    # generate a parser_config specific to the current file extension
+    current_config = parser_config.copy()
+    if ext in parser_config:
+        for k, v in current_config[ext].items():
+            current_config[k] = v
+
+    begin_regex_ml, begin_regex_sl = _regex_begin_documentation(current_config)
+    end_regex_ml, end_regex_sl = _regex_end_documentation(current_config)
+
+    is_sl = None
+    def is_begin(line):
+        nonlocal is_sl
+
+        if not is_sl is None:
+            return False
+
+        ml_match = re.search(begin_regex_ml, line)
+        sl_match = re.search(begin_regex_sl, line) if begin_regex_sl else None
+
+        # multiline takes precedence over single line
+        if ml_match:
+            is_sl = False
+        elif sl_match:
+            is_sl = True
+        # NOTE: the `else` case is intentionally left out to let is_sl be None
+        # if neither is found (setting it to none in the `else` case is wrong
+        # since it would override the previous value)
+
+        return ml_match or sl_match
+
+    def is_end(line):
+        nonlocal is_sl
+        # matches just one between ml and sl based on what is_begin found
+        if is_sl is True:
+            return re.search(end_regex_sl, line)
+        elif is_sl is False:
+            return re.search(end_regex_ml, line)
+        return False
 
     with open(path_to_file) as input_file:
         # Peek the first `line_number` lines
         document_lines = [next(input_file)
-                          for _ in range(parser_config['peek_lines'])]
+                          for _ in range(current_config['peek_lines'])]
 
-        first_line_index = [i for i, item in enumerate(
-            document_lines) if re.search(begin_regex, item)]
+        first_line_index = [i for i, line in enumerate(
+            document_lines) if is_begin(line)]
 
         # If none of the lines match the begin_regex, return None
         if len(first_line_index) == 0:
@@ -180,15 +236,14 @@ def _peek_n_read_if_match(path_to_file, parser_config):
         while True:
             try:
                 line = next(input_file)
-                document_lines.append(line)
-                if re.search(end_regex, line):
+                document_lines.append(_remove_sl_comment(line, current_config))
+                if is_end(line):
                     break
                 last_line_index += 1
             except StopIteration:
-                print(
-                    '''Warning: reached end of file before end of documentation:
-                      this usually means that the documentation is not properly closed
-                      or the entire file contains only documentation''')
+                print('Warning: reached end of file before end of documentation: ' +\
+                      'this usually means that the documentation is not properly ' +\
+                      'closed or the entire file contains only documentation')
                 break
 
-        return document_lines[first_line_index:last_line_index], options
+        return document_lines[first_line_index:last_line_index+1], options

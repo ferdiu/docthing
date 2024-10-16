@@ -110,15 +110,18 @@ This section provides language-specific parser configurations for specific langu
 source-code files. These settings can override general parser settings for these specific
 file types.
 
-- `begin_ml_comment`: Specifies the string used to mark the start of multi-line comments in
-JavaScript/TypeScript files.
+- `begin_ml_comment`: Specifies the string used to mark the start of multi-line comments in all
+files with extension(s) in `extensions-list`.
 > Example:
 > `begin_ml_comment=/*`
 
-- `end_ml_comment`: Specifies the string used to mark the end of multi-line comments in
-JavaScript/TypeScript files.
+- `end_ml_comment`: Specifies the string used to mark the end of multi-line comments in all
+files with extension(s) in `extensions-list`.
 > Example:
 > `end_ml_comment=*/`
+
+- `sl_comment`: Specifies the string used to mark single-line comments in all
+files with extension(s) in `extensions-list`.
 
 ## Variables
 
@@ -153,6 +156,7 @@ peek_lines=1
 [parser|js|jsx|ts|tsx]
 begin_ml_comment=/*
 end_ml_comment=*/
+sl_comment=//
 allow_sl_comments=false
 ```
 ### In this example:
@@ -515,6 +519,7 @@ config_schema = Schema({
         Optional(str): {
             'begin_ml_comment': str,               # multiline comment start as string
             'end_ml_comment': str,                 # multiline comment end as string
+            'sl_comment': str,                     # single line comments
             Optional('allow_sl_comments'): bool,   # boolean for sl comments
             # peek_lines must be an integer
             Optional('peek_lines'): int,

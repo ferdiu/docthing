@@ -10,6 +10,7 @@ _c_like_languages_parser_config = {
     'begin_ml_comment': '/*',
     'end_ml_comment': '*/',
     'allow_sl_comments': False,
+    'sl_comment': '//',
 }
 
 # Constants for defaults
@@ -33,6 +34,7 @@ DEFAULT_CONFIG = {
             'begin_ml_comment': "'''",
             'end_ml_comment': "'''",
             'allow_sl_comments': False,
+            'sl_comment': '#',
         },
         'c': _c_like_languages_parser_config,      # C/C++ source
         'cc': _c_like_languages_parser_config,     # C/C++ source,
@@ -59,6 +61,7 @@ DEFAULT_CONFIG = {
             'begin_ml_comment': '#=',
             'end_ml_comment': '=#',
             'allow_sl_comments': False,
+            'sl_comment': '#',
         },
         'rs': _c_like_languages_parser_config,     # Rust
         'rlib': _c_like_languages_parser_config,   # Rust library

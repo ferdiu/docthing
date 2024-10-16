@@ -11,6 +11,7 @@ def test_c_like_languages_parser_config():
         'begin_ml_comment': '/*',
         'end_ml_comment': '*/',
         'allow_sl_comments': False,
+        'sl_comment': '//',
     }
 
 # Test DEFAULT_CONFIG dictionary structure

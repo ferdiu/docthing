@@ -53,6 +53,7 @@ peek_lines=1
 [parser|js|ts]
 begin_ml_comment=/*
 end_ml_comment=*/
+sl_comment=//
 allow_sl_comments=false
 ```
 
