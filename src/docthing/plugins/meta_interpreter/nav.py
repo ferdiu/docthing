@@ -55,6 +55,9 @@ class MarkdownNAVInterpreter(MetaInterpreter):
             p = os.path.join(
                 *[n if isinstance(n, str) else n.get_title() for n in p])
             res.append(MarkdownNAVReference(p))
+        elif next is not None:
+            res.append(
+                '<span></span>\n')
 
         if prev is not None and next is not None:
             res.append(
