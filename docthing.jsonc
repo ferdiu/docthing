@@ -24,7 +24,6 @@
     "Development contribution": {
         "Extractor": "src/docthing/extractor.py",
         "Utils": "src/docthing/util.py",
-        "Constants": "src/docthing/constants.py",
-        "TODOs": "TODO.md"
+        "Constants": "src/docthing/constants.py"
     }
 }

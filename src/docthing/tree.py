@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from typing import Union, List, Callable
 
 
 class TreeNode(ABC):
@@ -20,7 +23,11 @@ class TreeNode(ABC):
     method removes a child node from the current node.
     '''
 
-    def __init__(self, parent=None, children=None):
+    def __init__(self,
+                 parent: Union[None,
+                               TreeNode] = None,
+                 children: Union[None,
+                                 List[TreeNode]] = None):
         '''
         Initialize a new TreeNode instance.
         '''
@@ -31,19 +38,19 @@ class TreeNode(ABC):
             for child in children:
                 self.add_child(child)
 
-    def is_root(self):
+    def is_root(self) -> bool:
         '''
         Check if the node is the root of the tree.
         '''
         return self.parent is None
 
-    def get_parent(self):
+    def get_parent(self) -> Union[None, TreeNode]:
         '''
         Get the parent node of the current node.
         '''
         return self.parent
 
-    def get_root(self):
+    def get_root(self) -> TreeNode:
         '''
         Get the root node of the tree.
         '''
@@ -52,7 +59,7 @@ class TreeNode(ABC):
         else:
             return self.parent.get_root()
 
-    def set_parent(self, parent):
+    def set_parent(self, parent: Union[None, TreeNode]) -> None:
         '''
         Set the parent node of the current node.
         '''
@@ -65,13 +72,13 @@ class TreeNode(ABC):
 
         self.parent = parent
 
-    def is_leaf(self):
+    def is_leaf(self) -> bool:
         '''
         Check if the node is a leaf node (i.e., has no children).
         '''
         return len(self.children) == 0
 
-    def add_child(self, child):
+    def add_child(self, child: TreeNode) -> None:
         '''
         Add a child node to the current node.
         '''
@@ -82,13 +89,13 @@ class TreeNode(ABC):
         child.set_parent(self)
         self.children.append(child)
 
-    def get_children(self):
+    def get_children(self) -> List[TreeNode]:
         '''
         Get the children of the current node.
         '''
         return self.children
 
-    def get_child(self, index):
+    def get_child(self, index: int) -> TreeNode:
         '''
         Get the child node at the specified index.
         '''
@@ -96,10 +103,13 @@ class TreeNode(ABC):
             raise IndexError('Index out of range')
         return self.children[index]
 
-    def remove_child(self, index):
+    def remove_child(self, index: Union[int, TreeNode]) -> TreeNode:
         '''
         Remove the child node at the specified index.
             If index is a `TreeNode`, remove the child node.
+
+            Returns:
+                The removed child node.
         '''
         if isinstance(index, int):
             if index < 0 or index >= len(self.children):
@@ -116,7 +126,7 @@ class TreeNode(ABC):
         child.parent = None  # Set the parent to None without triggering `remove_child` again
         return child
 
-    def get_depth(self):
+    def get_depth(self) -> int:
         '''
         Get the depth of the current node in the tree.
         '''
@@ -125,7 +135,7 @@ class TreeNode(ABC):
         else:
             return 1 + self.parent.get_depth()
 
-    def get_height(self):
+    def get_height(self) -> int:
         '''
         Get the height of the current node in the tree.
         '''
@@ -134,7 +144,7 @@ class TreeNode(ABC):
         else:
             return 1 + max(child.get_height() for child in self.children)
 
-    def get_size(self):
+    def get_size(self) -> int:
         '''
         Get the size of the current node in the tree.
         '''
@@ -143,7 +153,7 @@ class TreeNode(ABC):
         else:
             return 1 + sum(child.get_size() for child in self.children)
 
-    def get_path(self):
+    def get_path(self) -> List[TreeNode]:
         '''
         Get the path from the root node to the current node.
         '''
@@ -152,7 +162,7 @@ class TreeNode(ABC):
         else:
             return self.parent.get_path() + [self]
 
-    def get_leaves(self):
+    def get_leaves(self) -> List[TreeNode]:
         '''
         Get the leaves of the current node in the tree.
         '''
@@ -164,13 +174,16 @@ class TreeNode(ABC):
                 leaves.extend(child.get_leaves())
             return leaves
 
-    def get_name(self):
+    def get_name(self) -> str:
         '''
         Get the name of the current node.
         '''
-        return '.'.join(self.get_path()) + '::' + str(self)
+        res = '.'.join([str(n) for n in self.get_path()[:-1]])
+        if res != '':
+            res += '::'
+        return res + str(self)
 
-    def get_index_in_parent(self):
+    def get_index_in_parent(self) -> Union[None, int]:
         '''
         Get the index of the current node in its parent's children list.
         '''
@@ -179,7 +192,7 @@ class TreeNode(ABC):
         else:
             return self.parent.children.index(self)
 
-    def get_previous_sibling(self):
+    def get_previous_sibling(self) -> Union[None, TreeNode]:
         '''
         Get the previous sibling of the current node.
         '''
@@ -192,7 +205,7 @@ class TreeNode(ABC):
             else:
                 return self.parent.children[index - 1]
 
-    def get_next_sibling(self):
+    def get_next_sibling(self) -> Union[None, TreeNode]:
         '''
         Get the next sibling of the current node.
         '''
@@ -205,7 +218,7 @@ class TreeNode(ABC):
             else:
                 return self.parent.children[index + 1]
 
-    def get_previous_tree_leaf_breadth_first(self):
+    def get_previous_tree_leaf_breadth_first(self) -> Union[None, TreeNode]:
         '''
         Get the previous leaf node int the root in breadth-first order.
 
@@ -219,7 +232,7 @@ class TreeNode(ABC):
         else:
             return leaves[self_index - 1]
 
-    def get_next_tree_leaf_breadth_first(self):
+    def get_next_tree_leaf_breadth_first(self) -> Union[None, TreeNode]:
         '''
         Get the next leaf node int the root in breadth-first order.
         Works only on leaves.
@@ -232,7 +245,7 @@ class TreeNode(ABC):
         else:
             return leaves[self_index + 1]
 
-    def get_path_to(self, other_node):
+    def get_path_to(self, other_node: TreeNode) -> List[Union[str, TreeNode]]:
         '''
         Get the path from the other_node to the current node.
         '''
@@ -259,7 +272,7 @@ class TreeNode(ABC):
 
         return relative_path
 
-    def to_string(self, prevprefix='', position='first'):
+    def to_string(self, prevprefix: str = '', position: str = 'first') -> str:
         if position not in ['first', 'middle', 'last']:
             raise ValueError('Invalid position')
 
@@ -289,8 +302,8 @@ class TreeNode(ABC):
 
     def prune(
             self,
-            prune_condition=lambda node: True,
-            prune_internal_to_leaf=False):
+            prune_condition: Callable[[TreeNode], bool] = lambda node: True,
+            prune_again_after_children: bool = False) -> None:
         '''
         Prune the tree based on a prune condition.
 
@@ -304,24 +317,26 @@ class TreeNode(ABC):
         Note: when called on a root, it will behave like the prune_condition
         was False (will call prune on all children).
 
-        if prune_internal_to_leaf is True, the function will check condition again
+        If prune_again_after_children is True, the function will check condition again
         after the children removal. If the condition is met, the node will be
         pruned again. This can be really helpful when pruning a tree where all
         internal nodes should be pruned if they become leaves.
         '''
-        if prune_condition(self) and self.parent is not None:
+        if prune_condition(self) and not self.is_root():
             self.parent.remove_child(self)
         else:
             i = 0
             while i < len(self.children):
-                will_prune = prune_condition(self.children[i])
-                self.children[i].prune(prune_condition)
+                old_ith_child = self.children[i]
+                self.children[i].prune(
+                    prune_condition, prune_again_after_children)
                 # If the child was pruned, we don't want to increment i
-                if not will_prune:
+                if i < len(
+                        self.children) and old_ith_child == self.children[i]:
                     i += 1
 
-            if prune_internal_to_leaf and prune_condition(self):
-                self.prune(prune_condition, prune_internal_to_leaf=False)
+            if prune_again_after_children and prune_condition(self):
+                self.prune(prune_condition, prune_again_after_children=False)
 
     @abstractmethod
     def __str__(self) -> str:
@@ -341,62 +356,63 @@ class Tree(TreeNode):
     for managing the tree structure.
     '''
 
-    def __init__(self, root=None):
+    def __init__(self, root: Union[None, TreeNode] = None):
         '''
         Initialize a new Tree instance.
         '''
         self.root = TreeNode() if root is None else root
 
-    def get_root(self):
+    def get_root(self) -> TreeNode:
         '''
         Get the root node of the tree.
         '''
         return self.root
 
-    def is_root(self):
+    def is_root(self) -> bool:
         return True
 
-    def get_parent(self):
+    def get_parent(self) -> None:
         return None
 
-    def set_parent(self, parent):
-        return self.get_rooot().set_parent(parent)
+    def set_parent(self, parent: TreeNode) -> None:
+        self.get_rooot().set_parent(parent)
+        self.root = parent
 
-    def is_leaf(self):
+    def is_leaf(self) -> bool:
         return self.get_root().is_leaf()
 
-    def add_child(self, child):
+    def add_child(self, child: TreeNode) -> None:
         return self.get_root().add_child(child)
 
-    def get_children(self):
+    def get_children(self) -> List[TreeNode]:
         return self.get_root().get_children()
 
-    def get_child(self, index):
+    def get_child(self, index: Union[int, TreeNode]) -> TreeNode:
         return self.get_root().get_child(index)
 
-    def get_depth(self):
+    def get_depth(self) -> int:
         return 0
 
-    def get_height(self):
+    def get_height(self) -> int:
         return self.get_root().get_height()
 
-    def get_size(self):
+    def get_size(self) -> int:
         return self.get_root().get_size()
 
-    def get_path(self):
+    def get_path(self) -> List[TreeNode]:
         return [self.get_root()]
 
-    def get_leaves(self):
+    def get_leaves(self) -> List[TreeNode]:
         return self.get_root().get_leaves()
 
-    def to_string(self, prefix=''):
-        return self.get_root().to_string()
+    def to_string(self, prevprefix: str = '', position: str = 'first') -> str:
+        return self.get_root().to_string(prevprefix, position)
 
     def prune(
             self,
-            prune_condition=lambda node: True,
-            prune_internal_to_leaf=False):
-        self.get_root().prune(prune_condition, prune_internal_to_leaf)
+            prune_condition: Callable[[TreeNode], bool] = lambda node: True,
+            prune_again_after_children: bool = False) -> None:
+        self.get_root().prune(prune_condition, prune_again_after_children)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.get_root().to_string()

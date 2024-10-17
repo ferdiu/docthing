@@ -167,7 +167,7 @@ class DocumentationNode(TreeNode):
 
         if unlazy:
             self._unlazy_content()
-            return self.content
+            return self.content if self.content is not self.is_leaf() else Document([])
 
     def get_title(self):
         '''
@@ -185,6 +185,9 @@ class DocumentationNode(TreeNode):
             Returns:
                 dict: The options of the node.
         '''
+        if self.lazy:
+            self._unlazy_content()
+
         return self.options
 
     def replace_resources_with_imports(self, import_function):
@@ -319,7 +322,7 @@ class DocumentationBlob(Tree):
                 return True
         return False
 
-    def prune_doc_level(self, level=0):
+    def prune_doc(self):
         '''
         Prunes the documentation level of the documentation blob based on the
         provided level.
@@ -330,24 +333,35 @@ class DocumentationBlob(Tree):
         If a node has the option `level-only` enabled this will be kept only if the
         level is exactly the specified level.
         '''
-        def _prune_function(node):
-            # Prune internal nodes left with no children...
-            if node.get_content() is None and len(node.get_children()) == 0:
-                return True
-            # ... do not prune it otherwise
-            if node.get_content() is None:
+        if self.is_lazy():
+            self.unlazy()
+
+        level = self.parser_config['doc_level']
+        if level == 0:
+            return
+
+        def _prune_function(node: DocumentationNode):
+            # The node is internal (do not prune)
+            if not node.is_leaf():
                 return False
-            node_level = node.get_content().get_options().get('level', 0)
-            is_level_only = node.get_content().get_options().get('level-only', False)
+
+            # The node is a leaf
+            if node.get_content() is None:
+                # The node is a leaf with no content it means that is an
+                #   internal node left with no child
+                return True
+
+            node_level = node.get_options().get('level', 0)
+            is_level_only = node.get_options().get('level-only', False)
             if node_level > level:
                 # Always prune if node level is greater
                 return True
             elif node_level == level:
                 # Never prune if the node level is the same
                 return False
-            else:
+            else:  # node level is lower
                 # Prune only if the level-only option was specified
                 #   and the node level is lower
                 return is_level_only
 
-        self.prune(_prune_function, prune_internal_to_leaf=True)
+        self.prune(_prune_function, prune_again_after_children=True)

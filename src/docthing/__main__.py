@@ -107,6 +107,12 @@ def main():
         index_file,
         config['parser'])
 
+    print('pre pruning')
+    print(blob.to_string('|| '))
+    blob.prune_doc()
+    print('post pruning')
+    print(blob.to_string('|| '))
+
     # Apply all meta interpreters
     for interpreter in interpreter_manager.get_plugins():
         interpreter.interpret(blob)

@@ -13,7 +13,7 @@
     - [X] properly handle all cases when reading the `index_file`
 - general:
     - [X] build `DocumentationBlob` instead of dumping `.md` files in the output directory
-    - [ ] use `options` inside `DocumentationBlob` when exporting using an `Exporter`
+    - [X] use `options` inside `DocumentationBlob` when exporting using an `Exporter`
 - refactor:
     - [X] `extensions` and `iexts` should be moved into `parser` section
 - documentation:

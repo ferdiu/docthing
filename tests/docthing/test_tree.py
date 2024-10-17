@@ -188,6 +188,25 @@ def test_get_leaves():
     assert grandchild in leaves
     assert child2 in leaves
 
+# Test get_name method
+
+
+def test_get_name_single_node():
+    node = MockTreeNode()
+    assert node.get_name() == "MockTreeNode()"
+
+
+def test_get_name_path():
+    root = MockTreeNode()
+    child = MockTreeNode()
+    grandchild = MockTreeNode()
+    root.add_child(child)
+    child.add_child(grandchild)
+
+    assert root.get_name() == "MockTreeNode()"
+    assert child.get_name() == "MockTreeNode()::MockTreeNode()"
+    assert grandchild.get_name() == "MockTreeNode().MockTreeNode()::MockTreeNode()"
+
 # Test relative path methods
 
 
@@ -315,11 +334,25 @@ def test_prune_all_nodes():
     root.add_child(child2)
 
     root.prune(lambda node: True)
-    print(root)
     assert root.is_leaf()
 
 
+def test_prune_connections():
+    root = MockTreeNode()
+    child1 = MockTreeNode()
+    child2 = MockTreeNode()
+    root.add_child(child1)
+    root.add_child(child2)
+
+    child1.prune()
+    child2.prune()
+    assert len(root.children) == 0
+    assert child1.parent is None
+    assert child2.parent is None
+
 # Test Tree class
+
+
 def test_tree_class():
     root = MockTreeNode()
     tree = Tree(root=root)

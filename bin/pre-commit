@@ -15,8 +15,8 @@ echo "##                             ##"
 echo "#################################"
 echo
 
-echo "1. Enforcing style \`autopep8 --in-place --aggressive --aggressive \"*.py\"\`"
-autopep8 --in-place --aggressive --aggressive $(find . -name "*.py")
+echo "1. Enforcing style \`autopep8 --in-place --aggressive --aggressive --exit-code \"*.py\"\`"
+autopep8 --in-place --aggressive --aggressive --exit-code $(find . -name "*.py")
 echo
 
 echo "2. Checking for syntax errors \`flake8 . --select=E9,F63,F7,F82 --show-source --statistics\`"
