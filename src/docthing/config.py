@@ -184,6 +184,38 @@ from .util import parse_value
 # CONFIGURATION FILE
 # =======================
 
+def get_as_dot_config(config):
+    '''
+    Prints the configuration as a dot config file.
+    '''
+    res = ''
+    for section, section_content_keys in config.items():
+        res += f'[{section}]'
+        res += '\n'
+
+        if section == 'main' and 'index_file' not in section_content_keys:
+            res += 'index_file='
+            res += '\n'
+
+        subsections = [
+            k for k, v in section_content_keys.items() if isinstance(v, dict)]
+        for key in section_content_keys.keys():
+            if key in subsections:
+                continue
+            res += f'{key}={section_content_keys[key]}'
+            res += '\n'
+        res += '\n'
+
+        for subsection in subsections:
+            res += f'[{section}|{subsection}]'
+            for key in section_content_keys[subsection].keys():
+                res += f'{key}={section_content_keys[subsection][key]}'
+                res += '\n'
+            res += '\n'
+
+    return res
+
+
 def _combine_values(v1, v2):
     '''
     Helper function to combine two values.

@@ -29,12 +29,14 @@ Documentation is crucial for maintaining a clear understanding of a project's ar
 docthing \
     <index-file|project-directory> \
     [--config=<config-file>] \
+    [--config-dump] \
     [--outdir=<output-directory>]
 ```
 
 where:
 - `index-file` is file in the root of the directory containing the project you want to create documentation for (see [`Index File section`](#index-file)); alternatively this can be the name of the project root which will have to contain a file named `docthing.jsonc` which will be used as the `index-file`;
 - `config-file` is the path, relative to the directory containing the `project-index-file`, of the configuration file to use for docthing (see [`Config File section`](#config-file)) [default: `./docthing.conf`];
+- `config-dump` is a flag to print to stdout the default configuration file used by docthing;
 - `output-directory` is the absolute path to the directory where the documentation output will be produced [default: `./documentation` relative to the directory containing the `index-file`]; if destination does not exsist it will be created.
 
 ## Index File

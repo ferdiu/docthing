@@ -7,7 +7,7 @@
     - [X] load only named plugins in `output.type` variable
     - [ ] allow `[meta|<meta-name>]` section in config file
     - [ ] allow `[type|<type-name>]` section in config file
-    - [ ] create a command line option to dump a basic config file
+    - [X] create a command line option to dump a basic config file
 - doc-parser:
     - [X] allow the use of `parser.allow_sl_comments`
     - [X] properly handle all cases when reading the `index_file`

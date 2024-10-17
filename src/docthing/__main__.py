@@ -9,6 +9,7 @@ directory with the documentation.
 The script accepts the following command-line arguments:
 - `index_file`: The path to the index file (this is the only positional argument).
 - `-c`, `--config`: The path to the configuration file.
+- `--config-dump`: Dump the default configuration file to stdout and exit.
 - `-o`, `--outdir`: The path to the output directory.
 - `-h`, `--help`: Show the help message and exit.
 
@@ -28,7 +29,7 @@ import argparse
 
 from docthing.plugins.meta_interpreter.nav import MarkdownNAVInterpreter
 from docthing.util import mkdir_silent
-from docthing.config import load_config, merge_configs, validate_config
+from docthing.config import load_config, merge_configs, validate_config, get_as_dot_config
 from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
 from docthing.documentation_blob import DocumentationBlob
 from docthing.plugins.manager import PluginManager
@@ -51,11 +52,20 @@ def main():
         help='Relative to index directory path to configuration file',
         default=DEFAULT_CONFIG_FILE)
     parser.add_argument(
+        '--config-dump',
+        help='Dump the default configuration file to stdout and exit',
+        action='store_true')
+    parser.add_argument(
         '--outdir',
         help='Output directory for documentation',
         default=DEFAULT_OUTPUT_DIR)
 
     args = parser.parse_args()
+
+    # Dump the default configuration file to stdout if requested
+    if args.config_dump:
+        print(get_as_dot_config(DEFAULT_CONFIG))
+        return
 
     # Determine the index file
     if os.path.isdir(args.index_file):

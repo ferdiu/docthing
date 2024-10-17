@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import patch, mock_open
 from docthing.config import _variable_replace_single, merge_configs, load_config
 from docthing.config import validate_config, _combine_values, _split_sections_key
-from docthing.config import _go_into_scope, _get_var_value
+from docthing.config import _go_into_scope, _get_var_value, get_as_dot_config
 
 
 def test_combine_values():
@@ -212,3 +212,67 @@ def test_validate_config():
 
     with pytest.raises(Exception):
         validate_config(invalid_config)
+
+
+def test_simple_config():
+    config = {
+        'main': {
+            'index_file': 'docthing.jsonc',
+            'extensions': 'js,jsx,ts,tsx'
+        }
+    }
+    output = get_as_dot_config(config)
+    assert '[main]' in output
+    assert 'index_file=docthing.jsonc' in output
+    assert 'extensions=js,jsx,ts,tsx' in output
+
+
+def test_nested_config():
+    config = {
+        'parser': {
+            'begin_doc': 'BEGIN FILE DOCUMENTATION',
+            'js': {
+                'begin_ml_comment': '/*',
+                'end_ml_comment': '*/'
+            }
+        }
+    }
+    output = get_as_dot_config(config)
+    assert '[parser]' in output
+    assert 'begin_doc=BEGIN FILE DOCUMENTATION' in output
+    assert '[parser|js]' in output
+    assert 'begin_ml_comment=/*' in output
+    assert 'end_ml_comment=*/' in output
+
+
+def test_multiple_sections():
+    config = {
+        'main': {'index_file': 'docthing.jsonc'},
+        'output': {'dir': './documentation'},
+        'parser': {'doc_level': 1}
+    }
+    output = get_as_dot_config(config)
+    assert '[main]' in output
+    assert '[output]' in output
+    assert '[parser]' in output
+    assert 'index_file=docthing.jsonc' in output
+    assert 'dir=./documentation' in output
+    assert 'doc_level=1' in output
+
+
+def test_empty_config():
+    config = {}
+    output = get_as_dot_config(config)
+    assert output.strip() == ''
+
+
+def test_main_section_without_index_file():
+    config = {
+        'main': {
+            'extensions': 'js,jsx,ts,tsx'
+        }
+    }
+    output = get_as_dot_config(config)
+    assert '[main]' in output
+    assert 'index_file=' in output
+    assert 'extensions=js,jsx,ts,tsx' in output
