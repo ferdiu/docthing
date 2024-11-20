@@ -117,15 +117,24 @@ def main():
         index_file,
         config['parser'])
 
+    # Print the documentation tree
     print('pre pruning')
     print(blob.to_string('|| '))
+
+    # Prune the documentation blob based on the documentation level
     blob.prune_doc()
+
+    # Print the documentation tree
     print('post pruning')
     print(blob.to_string('|| '))
 
     # Apply all meta interpreters
     for interpreter in interpreter_manager.get_plugins():
         interpreter.interpret(blob)
+
+    # Print the documentation tree
+    print('post interpreting')
+    print(blob.to_string('|| '))
 
     # Output the documentation
     for exporter in exporter_manager.get_plugins():

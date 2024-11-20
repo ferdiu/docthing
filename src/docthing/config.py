@@ -370,7 +370,7 @@ def _variable_replace_single(config, host_var_path):
         # Remove the part of the value that has been handled
         remaining_value = remaining_value.split('}', 1)[1]
 
-    return res + remaining_value
+    return _combine_values(res, remaining_value)
 
 
 def merge_configs(config1, config2):
