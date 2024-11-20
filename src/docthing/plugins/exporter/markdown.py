@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+from urllib.parse import quote
 
 from ...documentation_content import ResourceReference
 from ..exporter_interface import Exporter
@@ -56,7 +57,7 @@ class MarkdownExporter(Exporter):
 
     def _link_import(self, leaf_title, resource_path):
         return f'[{leaf_title}](' +\
-            os.path.join(".", leaf_title + resource_path) + ')\n'
+            quote(os.path.join(".", leaf_title + resource_path)) + ')\n'
 
     def _img_import(self, leaf_title, resource_path):
         return '!' + self._link_import(leaf_title, resource_path)
