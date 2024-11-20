@@ -175,6 +175,7 @@ END FILE DOCUMENTATION '''
 
 import os
 from schema import Schema, Or, Optional
+from typing import Union
 
 from .constants import PREDEFINED_VARIABLES
 from .util import parse_value
@@ -184,7 +185,7 @@ from .util import parse_value
 # CONFIGURATION FILE
 # =======================
 
-def get_as_dot_config(config):
+def get_as_dot_config(config: dict) -> str:
     '''
     Prints the configuration as a dot config file.
     '''
@@ -216,7 +217,8 @@ def get_as_dot_config(config):
     return res
 
 
-def _combine_values(v1, v2):
+def _combine_values(v1: Union[str, list],
+                    v2: Union[str, list]) -> Union[str, list]:
     '''
     Helper function to combine two values.
 
@@ -241,7 +243,8 @@ def _combine_values(v1, v2):
     return res
 
 
-def _split_sections_key(sections_and_key):
+def _split_sections_key(
+        sections_and_key: Union[str, list]) -> tuple[list, str]:
     '''
     Helper function to split a key into sections and the last key.
     '''
@@ -251,7 +254,10 @@ def _split_sections_key(sections_and_key):
     return sections_and_key[:-1], sections_and_key[-1]
 
 
-def _go_into_scope(config, path_in_dicts, last_is_key=False):
+def _go_into_scope(config: dict,
+                   path_in_dicts: Union[str,
+                                        list],
+                   last_is_key: bool = False) -> dict:
     '''
     Helper function to go into a scope in the configuration.
     '''
@@ -276,7 +282,7 @@ def _go_into_scope(config, path_in_dicts, last_is_key=False):
     return current
 
 
-def _get_var_value(config, sections_and_key):
+def _get_var_value(config: dict, sections_and_key: Union[list, str]) -> dict:
     '''
     Helper function to get the value of a variable in nested dictionaries.
     '''
@@ -288,7 +294,8 @@ def _get_var_value(config, sections_and_key):
     return _go_into_scope(config, sections)[key]
 
 
-def _variable_replace_single(config, host_var_path):
+def _variable_replace_single(
+        config: dict, host_var_path: Union[str, list]) -> Union[str, list]:
     '''
     Replaces a single variable in the provided configuration.
 
@@ -373,7 +380,7 @@ def _variable_replace_single(config, host_var_path):
     return _combine_values(res, remaining_value)
 
 
-def merge_configs(config1, config2):
+def merge_configs(config1: dict, config2: dict):
     '''
     Merges two configuration dictionaries, recursively handling nested dictionaries.
 
@@ -396,7 +403,7 @@ def merge_configs(config1, config2):
     return merged_config
 
 
-def _parse_section_tag(line):
+def _parse_section_tag(line: str):
     '''
     Parses a section tag from a line in a configuration file.
 
@@ -415,7 +422,7 @@ def _parse_section_tag(line):
         return section_name, remaining_line.split('|')
 
 
-def _parse_key_value_pair(line):
+def _parse_key_value_pair(line: str):
     '''
     Parses a key-value pair from a line in a configuration file.
 
@@ -427,7 +434,14 @@ def _parse_key_value_pair(line):
     return [p.strip() for p in line.split('=', 1)]
 
 
-def _set_in_config(config, section, subsections, key, value, override=False):
+def _set_in_config(config: dict,
+                   section: str,
+                   subsections: Union[str,
+                                      list,
+                                      None],
+                   key: str,
+                   value,
+                   override: bool = False):
     '''
     Sets a value in a configuration dictionary, creating nested dictionaries as needed.
     '''
@@ -456,7 +470,7 @@ def _set_in_config(config, section, subsections, key, value, override=False):
         _set_in_config(config, section, subsection, key, value)
 
 
-def load_config(config_path, command_line_config={}):
+def load_config(config_path: str, command_line_config: dict = {}):
     '''
     Loads a configuration from the specified file path.
 
@@ -556,11 +570,21 @@ config_schema = Schema({
             # peek_lines must be an integer
             Optional('peek_lines'): int,
         }
-    }
+    },
+
+    # Configuration for meta interpreter plugins
+    Optional('meta'): {
+        Optional(str): dict
+    },
+
+    # Configuration for output plugins
+    Optional('type'): {
+        Optional(str): dict
+    },
 })
 
 
-def validate_config(config):
+def validate_config(config: dict):
     '''
     Validates the configuration against the defined schema.
     Args:
@@ -569,4 +593,44 @@ def validate_config(config):
     Returns:
         dict: The validated configuration dictionary.
     '''
+    verify_plugin_existance(config, 'meta', 'main')
+    verify_plugin_existance(config, 'type', 'output')
     return config_schema.validate(config)
+
+
+def _error_str(name, section: str, type: str):
+    return f'plugin \"{name}\" not found in {section}.{type} ' +\
+        'but a configuration for it was provided'
+
+
+def verify_plugin_existance(
+        config: dict,
+        plugin_type: str,
+        plugin_section: str,
+        warn_only=True):
+    '''
+    Verifies the existence of meta plugins in the configuration.
+    '''
+    if plugin_type not in config:
+        return
+
+    if plugin_type not in config[plugin_section]:
+        return
+
+    errors = []
+
+    for k in config[plugin_type].keys():
+        if isinstance(config[plugin_section][plugin_type], list):
+            if k not in config[plugin_section][plugin_type]:
+                errors.append(_error_str(k, plugin_section, plugin_type))
+        else:  # is a string
+            if config[plugin_section][plugin_type] != k:
+                errors.append(_error_str(k, plugin_section, plugin_type))
+
+    if warn_only:
+        for e in errors:
+            print(f'Warning: {e}')
+    else:
+        if errors:
+            raise ValueError('invalid configuration:\n- ' +
+                             '\n- '.join(errors))
