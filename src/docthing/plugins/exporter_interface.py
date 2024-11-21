@@ -7,7 +7,6 @@ from abc import abstractmethod
 import os
 
 from ..documentation_content import ResourceReference
-
 from .plugin_interface import PluginInterface
 from ..util import mkdir_silent
 

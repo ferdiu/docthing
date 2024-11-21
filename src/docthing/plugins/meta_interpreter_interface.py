@@ -25,17 +25,16 @@ class MetaInterpreter(PluginInterface):
     MetaInterpreter is an abstract class that defines the interface for meta-interpreters.
     '''
 
-    def __init__(self, config, mode='block'):
+    def __init__(self, mode='block'):
         '''
-        Initializes the MetaInterpreter instance with the provided configuration.
+        Initializes the MetaInterpreter instance.
         '''
         if mode not in ['block', 'begin_file', 'end_file']:
-            raise Exception(
+            raise ValueError(
                 f'Mode {mode} is not supported. ' +
                 'Please use either \'block\', \'begin_file\' or \'end_file\'.')
 
-        super().__init__(config)
-        self.config = config
+        super().__init__()
         self.mode = mode
 
     def _enable(self):
@@ -43,8 +42,8 @@ class MetaInterpreter(PluginInterface):
         Loads the MetaInterpreter instance by checking if the dependencies are available.
         '''
         if not self.are_dependencies_available():
-            raise Exception('Dependencies for the ' +
-                            f'{self.get_name()} interpreter are not available.')
+            raise ValueError('Dependencies for the ' +
+                             f'{self.get_name()} interpreter are not available.')
 
     def _disable(self):
         '''

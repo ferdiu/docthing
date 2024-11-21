@@ -12,9 +12,8 @@ class MarkdownNAVInterpreter(MetaInterpreter):
     A meta-interpreter for interpreting PlantUML code blocks.
     '''
 
-    def __init__(self, config):
-        super().__init__(config, 'end_file')
-        self.config = config
+    def __init__(self):
+        super().__init__('end_file')
 
     def get_name(self):
         return 'nav.md'

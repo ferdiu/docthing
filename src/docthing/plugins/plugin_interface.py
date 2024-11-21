@@ -5,6 +5,8 @@ END FILE DOCUMENTATION '''
 
 from abc import ABC, abstractmethod
 import shutil
+from schema import Schema
+from typing import List
 
 
 class PluginInterface(ABC):
@@ -15,15 +17,14 @@ class PluginInterface(ABC):
     initialization and cleanup, respectively.
     '''
 
-    def __init__(self, documentation_blob):
+    def __init__(self):
         '''
-        Initialize the plugin with the provided DocumentationBlob instance.
+        Initialize the plugin.
         '''
-        self.documentation_blob = documentation_blob
         self.enabled = False
 
     @abstractmethod
-    def _enable(self):
+    def _enable(self) -> None:
         '''
         Enable the plugin and perform any necessary initialization.
         Overwrite this method in subclasses to implement plugin-specific
@@ -32,7 +33,7 @@ class PluginInterface(ABC):
         pass
 
     @abstractmethod
-    def _disable(self):
+    def _disable(self) -> None:
         '''
         Disable the plugin and perform any necessary cleanup.
         Overwrite this method in subclasses to implement plugin-specific
@@ -40,49 +41,50 @@ class PluginInterface(ABC):
         '''
         pass
 
-    def enable(self):
+    def enable(self, config: dict = {}) -> None:
         '''
         Enable the plugin and perform any necessary initialization.
         '''
         print(f'Enabling plugin: {self.get_name()}')
+        self.configure(config)
         self._enable()
         self.enabled = True
 
-    def disable(self):
+    def disable(self) -> None:
         '''
         Disabling the plugin and perform any necessary cleanup.
         '''
         self._disable()
         self.enabled = False
 
-    def is_enabled(self):
+    def is_enabled(self) -> bool:
         '''
         Check if the plugin is loaded.
         '''
         return self.enabled
 
     @abstractmethod
-    def get_name(self):
+    def get_name(self) -> str:
         '''
         Return the name of the plugin.
         '''
         pass
 
     @abstractmethod
-    def get_description(self):
+    def get_description(self) -> str:
         '''
         Return the description of the plugin.
         '''
         pass
 
     @abstractmethod
-    def get_dependencies(self):
+    def get_dependencies(self) -> List[str]:
         '''
         Return the list of dependencies required by the plugin.
         '''
         pass
 
-    def are_dependencies_available(self):
+    def are_dependencies_available(self) -> bool:
         '''
         Check if all the dependencies required by the plugin are available.
         '''
@@ -90,3 +92,36 @@ class PluginInterface(ABC):
             if not shutil.which(dep):
                 return False
         return True
+
+    def schema(self) -> Schema:
+        '''
+        Return the schema for the plugin configuration.
+        Overwrite this method in subclasses to implement plugin-specific
+        configuration schema used for validation.
+        '''
+        return Schema(dict)
+
+    def validate(self, config: dict):
+        '''
+        Validate the provided configuration for the plugin.
+        '''
+        return self.schema().validate(config)
+
+    def _configure(self, _config: dict) -> None:
+        '''
+        Configure the plugin with the provided configuration.
+        Overwrite this method in subclasses to implement plugin-specific
+        configuration. Do not overwrite the `configure` (no underscore) method in subclasses.
+        '''
+        pass
+
+    def configure(self, config: dict) -> None:
+        '''
+        Configure the plugin with the provided configuration.
+        '''
+        validated_config = self.validate(config)
+        if config == validated_config:
+            self._configure(config)
+        else:
+            raise ValueError('invalid configuration for plugin ' +
+                             self.get_name() + ': ' + str(config))

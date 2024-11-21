@@ -12,10 +12,6 @@ class PlantUMLInterpreter(MetaInterpreter):
     A meta-interpreter for interpreting PlantUML code blocks.
     '''
 
-    def __init__(self, config):
-        super().__init__(config)
-        self.config = config
-
     def get_name(self):
         return 'plantuml'
 
@@ -62,4 +58,5 @@ class PlantUMLReference(ResourceReference):
             )
             return completed_process.stdout
         except sp.CalledProcessError as e:
-            raise Exception(f'Error while compiling PlantUML code: {e.stderr}')
+            raise ValueError(
+                f'A PlantUML compilation error was encountered: {e.stderr}')

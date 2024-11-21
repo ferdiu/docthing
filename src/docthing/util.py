@@ -112,7 +112,7 @@ def get_docthing_plugin_dir(plugin_type=None):
     If `plugin_type` is provided the path to the subdirectory is returned.
     '''
     if plugin_type not in SUPPORTED_PLUGIN_TYPES:
-        raise Exception('Plugin type not supported.')
+        raise ValueError('Plugin type not supported.')
 
     res = get_docthing_datadir() / 'plugins'
     if plugin_type:
