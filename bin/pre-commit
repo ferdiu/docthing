@@ -31,9 +31,9 @@ echo "4. Running tests \`pytest\`"
 pytest
 echo
 
-# TODO: increase required coverate to al least 90
+# TODO: increase required coverate to al least 80
 echo "5. Running coverage \`pytest-cov\`"
-pytest --cov src --cov-fail-under 35
+pytest --cov src --cov-fail-under 50
 echo
 
 # SPDX-License-Identifier:

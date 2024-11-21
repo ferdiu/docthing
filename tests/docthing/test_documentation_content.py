@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT
 
-# test_resource_document.py
 import pytest
 import re
 
@@ -10,9 +9,7 @@ from docthing.util import sha256sum
 
 # Concrete implementation of ResourceReference for testing purposes
 
-class TestResourceReference(ResourceReference):
-    __test__ = False
-
+class MockResourceReference(ResourceReference):
     def get_ext(self):
         return 'txt'
 
@@ -33,40 +30,40 @@ class TestResourceReferenceClass:
 
     def test_init_with_hash(self):
         source = ['line1', 'line2']
-        ref = TestResourceReference(source, 'type1', use_hash=True)
+        ref = MockResourceReference(source, 'type1', use_hash=True)
         expected_hash = sha256sum(''.join(source))
         assert ref.get_hash() == expected_hash
 
     def test_init_without_hash(self):
-        ref = TestResourceReference(['line1'], 'type1', use_hash=False)
+        ref = MockResourceReference(['line1'], 'type1', use_hash=False)
         assert ref.get_hash() is None
 
     def test_init_with_custom_hash(self):
         custom_hash = 'custom_hash'
-        ref = TestResourceReference(['line1'], 'type1', use_hash=custom_hash)
+        ref = MockResourceReference(['line1'], 'type1', use_hash=custom_hash)
         assert ref.get_hash() == custom_hash
 
     def test_init_invalid_hash(self):
         with pytest.raises(ValueError, match='use_hash must be a boolean or a string'):
-            TestResourceReference(['line1'], 'type1', use_hash=123)
+            MockResourceReference(['line1'], 'type1', use_hash=123)
 
     def test_get_path_with_hash(self):
         source = ['line1']
-        ref = TestResourceReference(source, 'type1', use_hash=True)
+        ref = MockResourceReference(source, 'type1', use_hash=True)
         expected_hash = sha256sum(''.join(source))
         assert ref.get_path() == f'{expected_hash}.txt'
 
     def test_get_path_without_hash(self):
-        ref = TestResourceReference(['line1'], 'type1', use_hash=False)
+        ref = MockResourceReference(['line1'], 'type1', use_hash=False)
         assert ref.get_path() == '.txt'
 
     def test_get_path_with_custom_hash(self):
         custom_hash = 'custom_string'
-        ref = TestResourceReference(['line1'], 'type1', use_hash=custom_hash)
+        ref = MockResourceReference(['line1'], 'type1', use_hash=custom_hash)
         assert ref.get_path() == f'{custom_hash}.txt'
 
     def test_str_representation(self):
-        ref = TestResourceReference(['line1'], 'type1', use_hash=False)
+        ref = MockResourceReference(['line1'], 'type1', use_hash=False)
         assert str(ref) == '@ref(type1)-->[.txt]\n'
 
 
@@ -92,7 +89,7 @@ class TestDocument:
 
     def test_replace_lines_with_reference(self):
         content = ['line1\n', 'line2\n', 'line3\n']
-        ref = TestResourceReference(['source'], 'type1')
+        ref = MockResourceReference(['source'], 'type1')
         doc = Document(content)
         doc.replace_lines_with_reference(ref, 1, 2)
         assert doc.content == ['line1\n', ref]
@@ -104,7 +101,7 @@ class TestDocument:
 
     def test_replace_lines_with_reference_invalid_indices(self):
         doc = Document(['line1', 'line2'])
-        ref = TestResourceReference(['source'], 'type1')
+        ref = MockResourceReference(['source'], 'type1')
         with pytest.raises(ValueError, match='begin and end must be integers'):
             doc.replace_lines_with_reference(ref, 'a', 1)
 
@@ -128,7 +125,7 @@ class TestDocument:
         assert doc.content == ['line1', 'line2', 'new line']
 
     def test_get_printable(self):
-        content = ['line1\n', TestResourceReference(['source'], 'type1')]
+        content = ['line1\n', MockResourceReference(['source'], 'type1')]
         doc = Document(content)
 
         assert re.match(
@@ -136,6 +133,6 @@ class TestDocument:
             doc.get_printable()) is not None
 
     def test_str_representation(self):
-        content = ['line1\n', TestResourceReference(['source'], 'type1')]
+        content = ['line1\n', MockResourceReference(['source'], 'type1')]
         doc = Document(content)
         assert str(doc) == 'Document(1 lines, 1 references)'

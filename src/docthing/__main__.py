@@ -103,14 +103,14 @@ def main():
 
     # Initialize the plugin manager for MetaInterpreters
     interpreter_manager = PluginManager(
-        'meta-interpreter', [PlantUMLInterpreter({}), MarkdownNAVInterpreter({})])
+        'meta-interpreter', [PlantUMLInterpreter(), MarkdownNAVInterpreter()])
     interpreter_manager.enable_plugins(
         config['main']['meta'] if 'meta' in config['main'] else [],
         configs=config.get('meta', {}))
 
     # Initialize the plugin manager for Exporters
     exporter_manager = PluginManager(
-        'exporter', [MarkdownExporter({})])
+        'exporter', [MarkdownExporter()])
     exporter_manager.enable_plugins(config['output']['type'],
                                     configs=config.get('type', {}))
 

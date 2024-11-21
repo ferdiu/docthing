@@ -128,9 +128,7 @@ def test_invalid_content_and_children(mock_config):
         )
 
 
-class TestReference(ResourceReference):
-    __test__ = False
-
+class MockReference(ResourceReference):
     def __init__(self, path_to_file):
         super().__init__(None, 'import-file', use_hash=path_to_file)
 
@@ -145,7 +143,7 @@ def test_replace_resources_with_imports(mock_config):
     node = DocumentationNode(
         parent=None,
         title="Replace Resources",
-        content=Document([TestReference("resource.ext")]),
+        content=Document([MockReference("resource.ext")]),
         parser_config=mock_config
     )
     mock_import = MagicMock()

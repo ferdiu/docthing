@@ -12,12 +12,6 @@ class MarkdownExporter(Exporter):
     An exporter that exports documentation to Markdown format.
     '''
 
-    def __init__(self, documentation_blob):
-        '''
-        Initializes the MarkdownExporter instance with the provided DocumentationBlob instance.
-        '''
-        super().__init__(documentation_blob)
-
     def _enable(self):
         pass
 

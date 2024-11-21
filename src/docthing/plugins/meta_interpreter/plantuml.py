@@ -12,10 +12,6 @@ class PlantUMLInterpreter(MetaInterpreter):
     A meta-interpreter for interpreting PlantUML code blocks.
     '''
 
-    def __init__(self, config):
-        super().__init__(config)
-        self.config = config
-
     def get_name(self):
         return 'plantuml'
 

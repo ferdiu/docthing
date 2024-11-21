@@ -21,8 +21,7 @@ class PluginManager:
         self.plugins = builtin_plugins
 
     def enable_plugins(self,
-                       plugins: Union[str,
-                                      list[str]] = 'all',
+                       plugins: Union[str, list[str]] = 'all',
                        configs: dict = {}) -> None:
         '''
         Enable all plugins from the specified directory.
@@ -65,7 +64,7 @@ class PluginManager:
         if os.path.isdir(self.plugin_dir):
             for filename in os.listdir(self.plugin_dir):
                 if filename.endswith('.py'):
-                    res.push(filename)
+                    res.append(filename)
         return res
 
     def get_plugins(self):

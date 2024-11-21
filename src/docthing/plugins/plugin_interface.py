@@ -16,11 +16,10 @@ class PluginInterface(ABC):
     initialization and cleanup, respectively.
     '''
 
-    def __init__(self, documentation_blob):
+    def __init__(self):
         '''
-        Initialize the plugin with the provided DocumentationBlob instance.
+        Initialize the plugin.
         '''
-        self.documentation_blob = documentation_blob
         self.enabled = False
 
     @abstractmethod
