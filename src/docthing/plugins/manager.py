@@ -6,7 +6,7 @@ END FILE DOCUMENTATION '''
 import os
 import importlib.util
 import inspect
-from typing import Union
+from typing import Union, List
 
 from .plugin_interface import PluginInterface
 from ..util import get_docthing_plugin_dir
@@ -21,7 +21,7 @@ class PluginManager:
         self.plugins = builtin_plugins
 
     def enable_plugins(self,
-                       plugins: Union[str, list[str]] = 'all',
+                       plugins: Union[str, List[str]] = 'all',
                        configs: dict = {}) -> None:
         '''
         Enable all plugins from the specified directory.

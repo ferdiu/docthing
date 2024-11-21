@@ -175,7 +175,7 @@ END FILE DOCUMENTATION '''
 
 import os
 from schema import Schema, Or, Optional
-from typing import Union
+from typing import Union, Tuple
 
 from .constants import PREDEFINED_VARIABLES
 from .util import parse_value
@@ -244,7 +244,7 @@ def _combine_values(v1: Union[str, list],
 
 
 def _split_sections_key(
-        sections_and_key: Union[str, list]) -> tuple[list, str]:
+        sections_and_key: Union[str, list]) -> Tuple[list, str]:
     '''
     Helper function to split a key into sections and the last key.
     '''
