@@ -6,6 +6,7 @@ END FILE DOCUMENTATION '''
 from abc import ABC, abstractmethod
 import shutil
 from schema import Schema
+from typing import List
 
 
 class PluginInterface(ABC):
@@ -77,7 +78,7 @@ class PluginInterface(ABC):
         pass
 
     @abstractmethod
-    def get_dependencies(self) -> list[str]:
+    def get_dependencies(self) -> List[str]:
         '''
         Return the list of dependencies required by the plugin.
         '''
