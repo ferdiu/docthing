@@ -105,12 +105,14 @@ def main():
     interpreter_manager = PluginManager(
         'meta-interpreter', [PlantUMLInterpreter({}), MarkdownNAVInterpreter({})])
     interpreter_manager.enable_plugins(
-        config['main']['meta'] if 'meta' in config['main'] else [])
+        config['main']['meta'] if 'meta' in config['main'] else [],
+        configs=config.get('meta', {}))
 
     # Initialize the plugin manager for Exporters
     exporter_manager = PluginManager(
         'exporter', [MarkdownExporter({})])
-    exporter_manager.enable_plugins(config['output']['type'])
+    exporter_manager.enable_plugins(config['output']['type'],
+                                    configs=config.get('type', {}))
 
     # Process the index file and generate the documentation
     blob = DocumentationBlob(

@@ -101,7 +101,7 @@ class PluginInterface(ABC):
         '''
         return Schema(dict)
 
-    def validate(self, config: dict) -> bool:
+    def validate(self, config: dict):
         '''
         Validate the provided configuration for the plugin.
         '''
@@ -119,7 +119,8 @@ class PluginInterface(ABC):
         '''
         Configure the plugin with the provided configuration.
         '''
-        if self.validate(config):
+        validated_config = self.validate(config)
+        if config == validated_config:
             self._configure(config)
         else:
             raise ValueError('invalid configuration for plugin ' +

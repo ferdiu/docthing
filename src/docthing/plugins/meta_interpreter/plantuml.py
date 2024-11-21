@@ -62,4 +62,5 @@ class PlantUMLReference(ResourceReference):
             )
             return completed_process.stdout
         except sp.CalledProcessError as e:
-            raise Exception(f'Error while compiling PlantUML code: {e.stderr}')
+            raise ValueError(
+                f'A PlantUML compilation error was encountered: {e.stderr}')

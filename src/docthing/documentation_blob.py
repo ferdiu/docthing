@@ -74,8 +74,7 @@ class DocumentationNode(TreeNode):
             raise ValueError('Both content and children cannot be provided')
 
         if content is not None and not isinstance(
-                content, str) and not isinstance(
-                content, ResourceReference):
+                content, (str, list, ResourceReference, Document)):
             raise ValueError(
                 'content must be None, a path to a file or a ResourceReference')
 

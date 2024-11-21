@@ -6,6 +6,7 @@ END FILE DOCUMENTATION '''
 import os
 import importlib.util
 import inspect
+from typing import Union
 
 from .plugin_interface import PluginInterface
 from ..util import get_docthing_plugin_dir
@@ -19,15 +20,23 @@ class PluginManager:
         self.plugin_dir = get_docthing_plugin_dir(plugin_type)
         self.plugins = builtin_plugins
 
-    def enable_plugins(self, plugins='all'):
+    def enable_plugins(self,
+                       plugins: Union[str,
+                                      list[str]] = 'all',
+                       configs: dict = {}) -> None:
         '''
         Enable all plugins from the specified directory.
+
+            Args:
+                plugins (str or list): The name of a plugin or the list of
+                names of the plugins to enable or 'all' to enable all plugins.
+                config (dict): The configuration dictionary.
         '''
         if plugins != 'all' and not isinstance(plugins, list):
             if isinstance(plugins, str):
                 plugins = [plugins]
             else:
-                raise Exception('Plugins must be a list of plugin names.')
+                raise ValueError('Plugins must be a list of plugin names.')
 
         # Load all plugins from the plugin directory
         for f in self._get_plugins_from_plugin_dir():
@@ -35,7 +44,8 @@ class PluginManager:
 
         if plugins == 'all':
             for plugin in self.plugins:
-                plugin.enable()
+                c = {"config": configs.get(plugin.get_name(), {})}
+                plugin.enable(**c)
             return
 
         avail_plugins = [p.get_name() for p in self.plugins]
@@ -47,7 +57,8 @@ class PluginManager:
         # Enable the specified plugins
         for plugin in self.plugins:
             if plugin.get_name() in plugins:
-                plugin.enable()
+                c = {"config": configs.get(plugin.get_name(), {})}
+                plugin.enable(**c)
 
     def _get_plugins_from_plugin_dir(self):
         res = []

@@ -15,6 +15,7 @@ class ResourceReference(ABC):
     A class that represents a reference to a resource.
     '''
 
+    @staticmethod
     def search(line):
         '''
         Searches for a resource reference in the given line.
