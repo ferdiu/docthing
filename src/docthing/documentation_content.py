@@ -149,6 +149,7 @@ class Document():
         else:
             self.content = content
 
+    @staticmethod
     def can_be(vec):
         '''
         Returns whether the given vector can be a Document.
@@ -164,6 +165,9 @@ class Document():
         return True
 
     def get_printable(self) -> str:
+        """
+        Returns a printable version of the document.
+        """
         if isinstance(self.content, str):
             return self.content
         elif isinstance(self.content, ResourceReference):
@@ -202,6 +206,9 @@ class Document():
             [reference] + self.content[end + 1:]
 
     def replace_resources_with_imports(self, title, import_function):
+        """
+        Replaces all resource references with imports.
+        """
         for i, el in enumerate(self.content):
             if isinstance(
                     el,
@@ -209,6 +216,9 @@ class Document():
                 self.content[i] = import_function(title, el)
 
     def prepend_resource(self, resource):
+        """
+        Prepends a resource to the document.
+        """
         if isinstance(resource, list):
             for el in resource:
                 if not isinstance(el, (ResourceReference, str)):
@@ -224,6 +234,9 @@ class Document():
             self.content.insert(0, resource)
 
     def append_resource(self, resource):
+        """
+        Appends a resource to the document.
+        """
         if isinstance(resource, list):
             for el in resource:
                 if not isinstance(el, (ResourceReference, str)):

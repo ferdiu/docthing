@@ -17,6 +17,12 @@ Documentation is crucial for maintaining a clear understanding of a project's ar
 - 🔌 Extensible (Plugins)
 - 🖼️ LOD (Level Of Details: choose the in-depth level of your documentation dynamically)
 
+### FAQ
+
+> **Q**: In which way `docthing` differs from other tools such as `doxygen` or `sphinx`?
+>
+> **A**: `docthing` is a tool that extracts *high-level documentation* from the projects. It is designed to be used alongside other tools such as `doxygen` or `sphinx` to provide a more comprehensive documentation solution. These tools are focused on generating technical documentation, while `docthing` is designed to extract high-level documentation from the projects and forcing developers to write and update it.
+
 ## Table of Contents
 
 - [Usage](#usage)
