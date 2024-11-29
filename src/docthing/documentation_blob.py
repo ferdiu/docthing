@@ -26,9 +26,9 @@ the hierarchical structure of documentation, where each node can have multiple c
 Each node with child(ren) is a _Section_ and outermost children (children of the root node) are referred
 as _Chapters_ (which are just sections with a fancy name).
 
-Each leaf of the tree represents a documentation content.
-
-
+Each leaf of the tree represents a documentation piece and its content will be a [`Document`](@Document)
+(which is a wrapper class for a list of strings or `ResourceReference`s). A Document has a one-to-one
+correspondence with an output file. Read more about it in the appropriate documentation section.
 END FILE DOCUMENTATION '''
 
 import pyjson5 as json

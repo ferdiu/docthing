@@ -1,6 +1,18 @@
 # SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 2)
-TODO: documentation_content documentation
+A [`Document`](@Document) is a wrapper class for a list of strings or `ResourceReference`s.
+The strings represent actual text content, while `ResourceReference`s are used to
+represent references to external resources such as images, files, or other resources.
+
+When a [`DocumentationBlob`](@DocumentationBlob) is exported to a specific format,
+the `Document` objects are used to produce the output of a specific file. Strings are
+written to the output file directly, while `ResourceReference`s are compiled and written
+to the output file in the appropriate syntax depending on the selected [`Exporter`](@Exporter)
+plugin and the format of the output resource format.
+
+For example, if the `ResourceReference` is an image, and the `Exporter` plugin will export
+the documentation to LaTeX, the `ResourceReference` will be compiled to a LaTeX
+`\includegraphics` command.
 END FILE DOCUMENTATION '''
 
 import re
