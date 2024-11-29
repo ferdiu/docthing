@@ -12,7 +12,7 @@ plugin and the format of the output resource format.
 
 For example, if the `ResourceReference` is an image, and the `Exporter` plugin will export
 the documentation to LaTeX, the `ResourceReference` will be compiled to a LaTeX
-`\includegraphics` command.
+`\\includegraphics` command.
 END FILE DOCUMENTATION '''
 
 import re
