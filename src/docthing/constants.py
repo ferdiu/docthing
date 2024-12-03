@@ -65,6 +65,12 @@ DEFAULT_CONFIG = {
         },
         'rs': _c_like_languages_parser_config,     # Rust
         'rlib': _c_like_languages_parser_config,   # Rust library
+        'sh': {                                    # Julia
+            'begin_ml_comment': '#',
+            'end_ml_comment': '#',
+            'allow_sl_comments': True,
+            'sl_comment': '#',
+        },
 
         # TODO: add more default configuration options for most common
         # languages here
