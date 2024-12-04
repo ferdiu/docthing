@@ -1,6 +1,22 @@
 # SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 3)
-TODO: util documentation
+Useful development tools are provided inside the `docthing.util` module.
+This module contains function that are used by docthing internally and should
+**never** be used by users of docthing.
+These functions are not guaranteed to be stable and may change at any time.
+What is granted is that if the function signature changes, it will be
+documented in the changelog. If the function is deprecated, it will be
+marked as such. If the function is removed, it will be marked as deprecated
+for at least one major version.
+At this time the provided functions are:
+- `mkdir_silent(output_dir)`: creates the specified output directory if it
+doesn't already exist.
+- `sha256sum(string)`: computes the SHA-256 hash of a given string.
+- `get_datadir()`: returns a parent directory path where persistent application
+data can be stored.
+- `get_docthing_datadir()`: returns the path to the docthing data directory.
+- `get_docthing_plugin_dir(plugin_type)`: returns the path to the docthing
+plugin directory.
 END FILE DOCUMENTATION '''
 
 import os

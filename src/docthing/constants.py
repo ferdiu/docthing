@@ -1,6 +1,27 @@
 # SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 3)
-TODO: constants documentation
+# Constants
+
+In the `docthing.constants` module, you will find the constants used in the
+docthing project.
+
+Here will be defined all the _default configuration values_ that can be
+overridden by the user, as well as the default configuration file containing
+the default values for the `parser` for the most common languages. For obvious
+reasons, this can't be an exhaustive list, but it will be updated as new
+languages are added to the project.
+
+If a language is not supported, this does not mean that `docthing` will not
+work with it. It simply means that the default configuration file for that
+language is not available and the user will have to provide their own.
+
+## Prederined Variables
+
+In this file a list of `PREDEFINED_VARIABLES` is defined. These variables
+are used to define the default values for the configuration file. Since these
+variables changes their value based on the user usage of the tool, they are
+actually function implementations that are called when the configuration
+file is parsed.
 END FILE DOCUMENTATION '''
 
 import os
