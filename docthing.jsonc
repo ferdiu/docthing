@@ -1,29 +1,29 @@
 {
-    "main-title": "docthing",
-    "quick": "README.md",
-    "intro": "INTRO.md",
-    // here a the general functioning of the project should be described
-    "How to: doc(your)thing": {
-        "Usage": "src/docthing/__main__.py",
-        "Examples": "src/docthing/__init__.py"
-    },
-    // here should be presented an in-depth on the configuration file
-    "Configuration": "src/docthing/config.py",
-    // here should be explained how to plugins system works
-    "Plugin Development": {
-        "Plugin": "src/docthing/plugins/plugin_interface.py",
-        "Plugin Manager": "src/docthing/plugins/manager.py",
-        "Documentation Tree": "src/docthing/documentation_blob.py",
-        "Documentation Leaf": "src/docthing/documentation_content.py",
-        "Plugin Types": {
-            "Meta Interpreter": "src/docthing/plugins/meta_interpreter_interface.py",
-            "Exporter": "src/docthing/plugins/exporter_interface.py"
-        }
-    },
-    // here should be explained how to contribute to the project it-self
-    "Development contribution": {
-        "Extractor": "src/docthing/extractor.py",
-        "Utils": "src/docthing/util.py",
-        "Constants": "src/docthing/constants.py"
+  "main-title": "docthing",
+  "quick": "README.md",
+  "intro": "INTRO.md",
+  // here a the general functioning of the project should be described
+  "How to: doc(your)thing": {
+    "Usage": "src/docthing/__main__.py",
+    "Examples": "src/docthing/__init__.py"
+  },
+  // here should be presented an in-depth on the configuration file
+  "Configuration": "src/docthing/config.py",
+  // here should be explained how to plugins system works
+  "Plugin Development": {
+    "Plugin": "src/docthing/plugins/plugin_interface.py",
+    "Plugin Manager": "src/docthing/plugins/manager.py",
+    "Documentation Tree": "src/docthing/documentation_blob.py",
+    "Documentation Leaf": "src/docthing/documentation_content.py",
+    "Plugin Types": {
+      "Meta Interpreter": "src/docthing/plugins/meta_interpreter_interface.py",
+      "Exporter": "src/docthing/plugins/exporter_interface.py"
     }
+  },
+  // here should be explained how to contribute to the project it-self
+  "Development": {
+    "Extractor": "src/docthing/extractor.py",
+    "Utils": "src/docthing/util.py",
+    "Constants": "src/docthing/constants.py"
+  }
 }
