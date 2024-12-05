@@ -8,6 +8,8 @@ Plugins can be enabled and disabled using the `enable` and `disable` methods,
 respectively. These two methods will call the `_enable` and `_disable` methods,
 which are defined by the user implementing the `PluginInterface` interface.
 
+### Definition
+
 Every plugin should define a `name` attribute that is used to identify the plugin,
 and a `description` attribute that describes the plugin and its `dependencies`.
 This can be achieved by implementing the `get_name`, `get_description`, and
@@ -15,6 +17,8 @@ This can be achieved by implementing the `get_name`, `get_description`, and
 strings that represent the names of the bianries expected to found in the system
 that are required by the plugin to work properly. If the plugin has no dependencies,
 the `get_dependencies` method should return an empty list.
+
+### Tuning
 
 Plugins can also support configuration through a configuration file. If so it should
 define a `schema` method that returns a `Schema` object that is used to validate the
@@ -24,6 +28,8 @@ first `validate` the configuration using the provided `Schema` and then call the
 This method will call an `_configure` method that, in case the plugin needs additional
 configuration, should be overwritten.
 
+### Usage
+
 It is up to the user to implement a method to actually _apply_ some changes to the
 [`DocumentationBlob`](@DocumentationBlob) using the plugin. For instance, the
 [`Exporter`](@Exporter) abstract class (and therefore all its subclasses) implements
@@ -31,6 +37,16 @@ the `export` method that takes a `DocumentationBlob` to export the documentation
 the [`MetaInterpreter`](@MetaInterpreter) implements the `interpret` method which
 takes a `DocumentationBlob` to apply some changes to it, depending on the plugin
 implementation.
+
+### Create you plugin
+
+To create a plugin, you need to create a new Python module that implements the
+`PluginInterface` interface. The module should be placed in the `plugins`
+directory of the docthing application. The module should define a class that
+implements the `PluginInterface` interface directly if it is a Plugin of a _new type_
+optherwise it should inherit from the appropriate abstract class (chosing between
+[`MetaInterpreter`](@MetaInterpreter) and [`Exporter`](@Exporter), see related
+documentation).
 END FILE DOCUMENTATION '''
 
 from abc import ABC, abstractmethod

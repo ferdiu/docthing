@@ -1,15 +1,55 @@
 # SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 2)
+`MetaInterpreter` is an abstract class that defines the interface for
+meta-interpreters plugins.
 
-TODO: meta_interpreter_interface documentation
+> Even if you are interested in developing a meta-interpreter,
+> I suggest you to read the documentation of [`Exporter`](@Exporter)
+> plugins too to have a better understanding of how the whole
+> process works.
 
-This comes from the `docthing/plugins/meta_interpreter.py` file.
+This kind of plugins are used to modify the documentation blob by
+intervening at the beginning of the file, at the end of the file or
+at the beginning of each _special block_ of the file.
 
-@startuml
-Bob -> Alice : hello
-@enduml
+## Beginning and ending of file modes
 
-In the documentation, the code block should have been replaced by a uuid.
+When a meta-interpreter is used in `begin_file` or `end_file` mode,
+it will be called once for each [`Document`](@Document) in the
+documentation blob to apply some changes to it at the beginning
+or at the end of the file respectively. A good example of this is
+the `nav.md` meta-interpreter that is used to generate the navigation
+links at the end of the page (`end_file` mode).
+
+## Block mode
+
+When a meta-interpreter is used in `block` mode, it will be look for
+a special line to start _capturing_ the content of the block until
+it finds a special line to stop capturing it. These special lines
+are defined by the user by implementing the `_get_begin_code` and
+`_get_end_code` methods. These methods should return a string or a
+regualr expression since they will be passed as argument in `re.search`
+used in `is_begin_code` and `is_end_code` methods respectively.
+Finally, once the block is captured, the `generate_resource` method
+will be called to generate a resource that will be added to the
+`Document` replacing the block with a reference to the resource
+in the form of a [`ResourceReference`](@ResourceReference). This kind
+of objects are later used by the [`Exporter`](@Exporter) plugin to
+generate the output file and the way it is built should be defined in the
+implementation of the method `generate_resource`. A good example of this
+is the builtin `plantuml` plugin that will look for `@startuml` and
+`@enduml` to capture the PlantUML code blocks and replace them with an
+implementation of `ResourceReference` called `PlantUMLReference`.
+
+As you might have guessed at this point, when you create a `MetaInterpreter`
+plugin, you should implement also a custom `ResourceReference` that will be
+used by `Exporter` plugins to generate the output file. In order ti do so
+the exporter will need to know if the resource need to be compiled (and
+enevtually how to do it) and what the output extension will be. The compilation
+process should be defined in the `compile` method of the `ResourceReference`
+implementation and the output extension should be defined in the `get_ext`
+method. The extension is later used by the exporter to determine the exact
+output file name.
 
 END FILE DOCUMENTATION '''
 
