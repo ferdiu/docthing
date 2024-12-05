@@ -1,7 +1,21 @@
 # SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 3)
-Other testing lines
-TODO: extractor documentation
+The `extract_documentation` method is responsible for extracting documentation
+from a given file path using a specified parser configuration.
+
+I would not call this much as a _parser_ but rather as a _stripper_ (LOL): this
+method performs some parsing but it is minimal. The way you can look at what it does
+is more like stripping the file from anything that is not documentation.
+
+The way it works is really simple:
+1. it reads the file line by line until it finds a line that starts with what was
+   specified in the configuration file as the `begin_ml_comment` followed by the
+   `begin_doc` part;
+2. continues reading the file until it finds a line that starts with what was
+   specified as the `end_ml_comment` preceeded by the `end_doc` part;
+3. returns the documentation block found;
+4. if the line found at point 1. contains options, it will parse them and
+   return them as a dict.
 END FILE DOCUMENTATION '''
 
 

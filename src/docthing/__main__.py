@@ -27,13 +27,13 @@ END FILE DOCUMENTATION '''
 import os
 import argparse
 
-from docthing.plugins.meta_interpreter.nav import MarkdownNAVInterpreter
 from docthing.util import mkdir_silent
 from docthing.config import load_config, merge_configs, validate_config, get_as_dot_config
 from docthing.constants import DEFAULT_CONFIG_FILE, DEFAULT_OUTPUT_DIR, DEFAULT_CONFIG
 from docthing.documentation_blob import DocumentationBlob
 from docthing.plugins.manager import PluginManager
 from docthing.plugins.exporter.markdown import MarkdownExporter
+from docthing.plugins.meta_interpreter.nav import MarkdownNAVInterpreter
 from docthing.plugins.meta_interpreter.plantuml import PlantUMLInterpreter
 
 

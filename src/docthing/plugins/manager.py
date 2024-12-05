@@ -1,6 +1,25 @@
 # SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 2)
-TODO: manager documentation
+All the methods exposed by a Plugin implementing the `PluginInterface`
+should not be called manually. Instead, they should be called by the
+`PluginManager` class.
+
+A `PluginManager` is responsible for managing the lifecycle of plugins.
+It provides methods to enable and disable plugins, as well as to get a
+list of all the enabled plugins.
+
+The `PluginManager` class is intended to be instantiated one for each
+_plugin type_. For example, there are currently two types of plugins
+in `docthing` currently: [`ExporterPlugin`](@ExporterPlugin)s and
+[`MetaInterpreterPlugin`](@MetaInterpreterPlugin)s (which are provided
+as abstract classes for implementation).
+
+> Note: if you are planning to add a new plugin to `docthing` which
+> implements one of these two interfaces, you should not bother with
+> understanding deeply the way the `PluginManager` class works.
+
+Once all plugins are enabled, the `PluginManager` will be able to
+let the user iterate over all them to perform some action.
 END FILE DOCUMENTATION '''
 
 import os

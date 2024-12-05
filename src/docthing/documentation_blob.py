@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: MIT
 ''' BEGIN FILE DOCUMENTATION (level: 2)
-TODO: documentation_blob documentation
-
 Everything in `docthing` is about the class [`DocumentationBlob`](@DocumentationBlob).
 
 This class is the one create after the _index file_ is processed accordingly to the _configuration_.
@@ -11,8 +9,26 @@ used to generate documentation in various formats.
 
 To export the documentation in a specific format, you can use an `Exporter Plugin` which is a
 class that implements the [`Exporter`](@Exporter) abstract class.
-After being correctly instantiated, a DocumentationBlob can be exported to a specific format passing
-it to the constructor of the `Exporter` implementation.
+After being correctly instantiated, a `DocumentationBlob` can be exported to a specific format passing
+it to the method `export` of an instance of a concrete `Exporter` implementation.
+
+Before exporting the documentation, it is possible to apply _Meta Interpreters_ plugins to the
+`DocumentationBlob` instance. These type of plugins are concrete implementations of the
+[`MetaInterpreter`](@MetaInterpreter) abstract class and tehy can be used to apply some specific
+modification to each node of the documentation tree based on some rules defined in the plugin itself.
+
+---
+
+`DocumentationBlob` is a tree structured object that contains the entire project documentation
+that honors the [`Tree`](@Tree) interface. A tree structure is perfect for representing
+the hierarchical structure of documentation, where each node can have multiple child nodes.
+
+Each node with child(ren) is a _Section_ and outermost children (children of the root node) are referred
+as _Chapters_ (which are just sections with a fancy name).
+
+Each leaf of the tree represents a documentation piece and its content will be a [`Document`](@Document)
+(which is a wrapper class for a list of strings or `ResourceReference`s). A Document has a one-to-one
+correspondence with an output file. Read more about it in the appropriate documentation section.
 END FILE DOCUMENTATION '''
 
 import pyjson5 as json
