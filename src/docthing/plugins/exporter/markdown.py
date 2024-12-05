@@ -40,7 +40,7 @@ class MarkdownExporter(Exporter):
 
         # If the page does not start with a title insert it
         for line in output.split('\n'):
-            if not isinstance(line, str) and line.strip() != '':
+            if isinstance(line, str) and line.strip() != '':
                 if not line.startswith('# '):
                     output = '# ' + leaf.get_title() +\
                         '\n\n' + output
